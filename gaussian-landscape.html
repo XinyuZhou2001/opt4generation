@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Explore Gaussian shells, multi-scale density landscapes, and exact gradient ascent. Change dimension, noise scales, and step size.">
+  <title>Gaussian Shells and Generative Landscapes</title>
+  <style>
+:root{color-scheme:light;--bg:#fbfaf7;--ink:#181a1b;--muted:#3d4348;--rule:#d9dedf;--blue:#416e90;--orange:#c77849;--soft:#edf1f2;--font:Georgia,'Times New Roman',serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--font)}button,input,select{font:inherit}button,select{font-family:'Segoe UI',Arial,sans-serif}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,canvas:focus-visible{outline:3px solid var(--orange);outline-offset:4px}a{color:var(--blue);text-underline-offset:4px}.page-header{max-width:1280px;padding:25px 34px 0;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:20px;font:12px/1.4 'Segoe UI',Arial,sans-serif;color:var(--muted)}.back-link{text-decoration:none;font-size:14px}main{max-width:1240px;margin:56px auto 60px;padding:0 32px}.opening{max-width:830px}.eyebrow{font:12px/1.5 'Segoe UI',Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}h1{font:500 clamp(40px,5vw,64px)/1.12 var(--font);letter-spacing:-.045em;margin:0 0 23px}.dek{font-size:21px;line-height:1.6;color:#3d4348;max-width:740px;margin:0 0 40px}.stage-tabs{display:flex;gap:28px;border-bottom:1px solid var(--rule)}.stage-tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:12px 0 15px;margin-bottom:-1px;font-size:15px;color:var(--muted)}.stage-tabs button.selected{color:var(--blue);border-bottom-color:var(--blue)}.stage-story{margin:29px 0 27px;max-width:980px;min-height:110px}.stage-story h2{font:500 29px/1.3 var(--font);letter-spacing:-.025em;margin:0 0 12px}.stage-story p{font-size:17px;line-height:1.7;margin:0;color:#3d4348}.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;padding:22px 0 16px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);font:14px/1.5 'Segoe UI',Arial,sans-serif}.parameter>span:first-child{display:flex;align-items:baseline;gap:4px;margin-bottom:13px}.parameter output{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--blue);font-weight:600;font-size:16px}.parameter sub{margin-left:-3px}.parameter input{display:block;width:100%;margin:0;accent-color:var(--blue);cursor:pointer}.parameter input:disabled{cursor:default}.range-ends{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:6px}.step-parameter.inactive{opacity:.42}.scene-tools{display:flex;justify-content:space-between;gap:25px;margin:18px 0 24px;font:13px/1.4 'Segoe UI',Arial,sans-serif}.preset-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:var(--muted)}.preset-row button{border:0;background:none;color:var(--blue);padding:3px 0;border-bottom:1px solid #c4d1da;font-size:13px}.height-toggle{display:flex;gap:0;border:1px solid var(--rule);border-radius:4px;overflow:hidden;flex-shrink:0}.height-toggle button{background:none;border:0;font-size:12px;padding:6px 11px;color:var(--muted)}.height-toggle button.selected{background:var(--soft);color:var(--ink)}.height-toggle.inactive{visibility:hidden}.scene-shells,.scene-landscape{display:grid;grid-template-columns:1.05fr 1fr;gap:35px;align-items:start}.scene-landscape{grid-template-columns:1.3fr 1fr;gap:27px}[hidden]{display:none!important}.plot-panel{min-width:0}.plot-panel h3{font:500 16px/1.45 'Segoe UI',Arial,sans-serif;margin:0;color:var(--ink)}.plot-heading{display:flex;justify-content:space-between;gap:10px;align-items:baseline;min-height:24px}.plot-heading>span{font:11px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}canvas{width:100%;display:block;touch-action:none}.shell-panel canvas,.shell-profiles canvas{height:425px}.surface-panel canvas,.contour-panel canvas{height:390px}#surface-canvas{cursor:grab}#surface-canvas:active{cursor:grabbing}#contour-canvas.can-add{cursor:crosshair}.plot-note{font:12px/1.6 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:7px 0 0;max-width:95%}.playback{border-top:1px solid var(--rule);margin-top:23px;margin-bottom:26px;padding-top:19px;font:14px/1.5 'Segoe UI',Arial,sans-serif}.playback-top{display:flex;justify-content:space-between;gap:20px;align-items:center}.transport{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.transport button{font-size:13px;padding:7px 13px;border:1px solid var(--rule);border-radius:4px;background:none;color:var(--ink)}.transport #play-button{background:var(--blue);color:white;border-color:var(--blue);min-width:70px}.transport label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:9px}.transport select{appearance:none;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2368747d' stroke-width='1.3'/%3E%3C/svg%3E") no-repeat right 9px center;border:1px solid var(--rule);border-radius:3px;padding:7px 26px 7px 9px;font-size:12px;color:var(--ink)}.iteration-label{color:var(--muted);font-size:13px;white-space:nowrap}.iteration-label output{color:var(--ink);font-variant-numeric:tabular-nums}.scrubber-label{display:flex;align-items:center;gap:18px;font-size:12px;color:var(--muted);margin:17px 0 12px}.scrubber-label input{flex:1;min-width:0;accent-color:var(--blue)}.metrics{display:flex;flex-wrap:wrap;gap:12px 27px;color:var(--muted);font-size:12px}.metrics strong{font-size:14px;color:var(--ink);font-weight:500;margin-left:6px;font-variant-numeric:tabular-nums}.metrics strong.warning{color:var(--orange)}.reading-line{margin:24px 0 17px;font-size:18px;line-height:1.65;color:#3d4348}.reading-line strong{font-weight:500;color:var(--blue)}.slice-note{font:13px/1.65 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:0 0 25px;max-width:1000px}.slice-note strong{color:#3d4348;font-weight:500}.technical-note{margin-top:25px;border-top:1px solid var(--rule);padding-top:18px;font:14px/1.75 'Segoe UI',Arial,sans-serif;color:#3d4348}.technical-note summary{cursor:pointer;color:var(--blue)}.technical-note>div{max-width:970px;padding-top:12px}.technical-note p{margin:0 0 15px}.technical-note .formula{font:17px/1.6 'Cambria Math',Georgia,serif;color:var(--ink);white-space:normal}.figure-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);margin-top:27px;padding-top:18px;font:12px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.figure-footer button{border:0;background:none;color:var(--blue);font-size:12px;padding:5px 0}
+@media(max-width:900px){main{margin-top:42px;padding:0 26px}.controls{gap:20px}.scene-shells,.scene-landscape{gap:20px}.stage-story{min-height:135px}.playback-top{align-items:flex-start}.transport label{margin-left:0}.transport{max-width:650px}.plot-heading{display:block;min-height:44px}.plot-heading>span{display:block;margin-top:3px}.surface-panel canvas,.contour-panel canvas{height:335px}.shell-panel canvas,.shell-profiles canvas{height:370px}}
+@media(max-width:660px){body{font-size:16px}.page-header{padding:19px 20px 0;font-size:10px}.page-header>span{max-width:160px;text-align:right}.back-link{font-size:12px}main{margin-top:34px;padding:0 20px}h1{font-size:42px}.dek{font-size:18px;margin-bottom:30px}.stage-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.stage-tabs button{font-size:14px;padding:11px 3px 13px}.stage-story{margin-top:25px;min-height:175px}.stage-story h2{font-size:26px}.stage-story p{font-size:16px}.controls{grid-template-columns:1fr 1fr;gap:22px 25px;padding:20px 0}.parameter>span:first-child{margin-bottom:10px;font-size:14px}.parameter output{font-size:15px}.scene-tools{gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px}.preset-row{gap:6px 12px}.preset-row>span{display:none}.preset-row button{font-size:13px}.height-toggle button{font-size:13px;padding:6px 8px}.scene-shells,.scene-landscape{grid-template-columns:1fr;gap:28px}.shell-panel canvas{height:350px}.shell-profiles canvas{height:365px}.surface-panel canvas{height:330px}.contour-panel canvas{height:350px}.plot-heading{display:flex;min-height:24px}.plot-heading>span{font-size:10px;margin:0}.plot-note{font-size:11px}.plot-panel h3{font-size:15px}.playback-top{display:block}.iteration-label{display:block;margin:13px 0 0}.transport{gap:7px}.transport label{font-size:13px}.transport select{font-size:13px}.transport button{font-size:14px;padding:7px 10px}.metrics{gap:10px 18px;font-size:13px}.metrics strong{font-size:13px}.scrubber-label{font-size:11px;gap:10px}.reading-line{font-size:17px;margin-top:22px}.slice-note{font-size:12px}.technical-note{font-size:13px}.technical-note .formula{font-size:15px}.figure-footer{font-size:10px;gap:15px}.figure-footer button{font-size:11px}}
+body[data-embedded=true] .page-header{display:none}body[data-embedded=true] main{margin:30px auto 20px;padding:0 22px}body[data-embedded=true] .opening .eyebrow{display:none}body[data-embedded=true] .opening h1{font-size:43px}body[data-embedded=true] .opening .dek{font-size:18px;margin-bottom:25px}body[data-embedded=true] .stage-story{min-height:130px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.mark-legend{display:flex;flex-wrap:wrap;gap:12px 25px;margin:20px 0;font:14px/1.6 Segoe UI,Arial,sans-serif;color:#3d4348}.mark-legend span{display:inline-flex;align-items:center;gap:8px}.mark-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}.legend-center{background:#315f7f;border:1px solid #1d3b50}.legend-iterate{background:#b45c2d;border:1px solid #7d3d1b}.legend-start{background:transparent;border:1.5px solid #b45c2d}.plot-note{color:#3d4348;font-size:13px}.metrics,.transport label,.scrubber-label{font-size:14px;color:#3d4348}.plot-heading>span{font-size:12px;color:#3d4348}.slice-note{color:#3d4348}
+.far-field-panel{margin:25px 0;padding:23px 0 20px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}.far-field-panel .plot-heading>span{font-size:14px;color:#3d4348}.far-field-grid{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(230px,1fr);gap:30px;margin-top:13px;align-items:start}#far-field-canvas{height:190px}.far-field-numbers{font:14px/1.6 'Segoe UI',Arial,sans-serif;color:#3d4348}.far-field-numbers p{margin:0 0 10px}.far-field-numbers>div{margin:9px 0}.far-field-numbers span{display:block}.far-field-numbers strong{font-weight:600;color:#294e66;margin-right:9px}.far-field-numbers small{font-size:14px;color:#8b4d2c;white-space:nowrap}.far-field-legend{display:flex;flex-wrap:wrap;gap:10px 27px;font:14px/1.6 'Segoe UI',Arial,sans-serif;color:#3d4348;margin-top:10px}.far-field-legend>span{display:flex;gap:9px;align-items:center}.far-field-legend i{display:inline-block;width:28px;height:0;flex-shrink:0}.far-field-legend .current-curve{border-top:3px solid #416e90}.far-field-legend .reference-curve{border-top:3px dashed #c77849}.far-field-delta{font:14px/1.7 'Segoe UI',Arial,sans-serif;color:#294e66;margin:12px 0 9px}.far-field-panel .plot-note{font-size:14px;color:#3d4348;max-width:100%;margin:8px 0 0}
+@media(max-width:660px){.far-field-grid{grid-template-columns:1fr;gap:10px}.far-field-panel .plot-heading{display:block}.far-field-panel .plot-heading>span{display:block;margin-top:5px}#far-field-canvas{height:190px}.far-field-numbers{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}.far-field-numbers>p{grid-column:1/-1}.far-field-numbers small{display:block}.far-field-legend{gap:8px 20px}.far-field-numbers strong{font-size:15px}.far-field-delta{font-size:14px}}
+
+</style>
+</head>
+<body>
+  <header class="page-header">
+    <a class="back-link" href="index.html#4-gaussian-shells-build-a-mountain">Back to the essay</a>
+    <span>Gaussian denoising · an explorable figure</span>
+  </header>
+  <main id="landscape-explorable">
+    <div class="opening">
+      <p class="eyebrow">From Gaussian shells to generation</p>
+      <h1>A landscape you can climb</h1>
+      <p class="dek">Spread noise around a center. Combine the scales into a mountain. Add more centers, then let the gradient guide the climb.</p>
+    </div>
+    <nav class="stage-tabs" aria-label="Visual explanation stages">
+      <button type="button" data-stage="0" class="selected" aria-pressed="true">Gaussian shells</button>
+      <button type="button" data-stage="1" aria-pressed="false">One mountain</button>
+      <button type="button" data-stage="2" aria-pressed="false">Many mountains</button>
+      <button type="button" data-stage="3" aria-pressed="false">Gradient ascent</button>
+    </nav>
+    <section class="stage-story" aria-live="polite">
+      <h2 id="stage-heading">Equal draws occupy very different volumes</h2>
+      <p id="stage-description"></p>
+    </section>
+    <div class="controls" aria-label="Landscape parameters">
+      <label class="parameter" for="dimension"><span>Dimension <i>d</i><output id="dimension-value">16</output></span><input id="dimension" type="range" min="2" max="128" step="1" value="16"><span class="range-ends"><span>2</span><span>128</span></span></label>
+      <label class="parameter" for="sigma-min"><span>Noise floor <i>σ</i><sub>min</sub><output id="sigma-min-value">0.32</output></span><input id="sigma-min" type="range" min="0.12" max="1.00" step="0.01" value="0.32"><span class="range-ends"><span>0.12</span><span>1.00</span></span></label>
+      <label class="parameter" for="sigma-max"><span>Broad scale <i>σ</i><sub>max</sub><output id="sigma-max-value">1.35</output></span><input id="sigma-max" type="range" min="0.80" max="2.50" step="0.01" value="1.35"><span class="range-ends"><span>0.80</span><span>2.50</span></span></label>
+      <label class="parameter step-parameter" for="step-size"><span>Step size <i>η</i><output id="step-size-value">0.030</output></span><input id="step-size" type="range" min="0" max="1000" step="1" value="500"><span class="range-ends"><span id="eta-min">0.002</span><span id="eta-max">0.450</span></span></label>
+    </div>
+    <div class="scene-tools">
+      <div class="preset-row"><span>Try</span><button type="button" data-preset="thin">Thin shells</button><button type="button" data-preset="overlap">Overlapping peaks</button><button type="button" data-preset="broad">Broad foothills</button><button type="button" data-preset="overshoot">Overshoot</button></div>
+      <div class="height-toggle" role="group" aria-label="Landscape height"><button type="button" data-height="density" aria-pressed="false">Density</button><button type="button" data-height="log" class="selected" aria-pressed="true">Log density</button></div>
+    </div>
+    <div id="shell-scene" class="scene-shells">
+      <section class="plot-panel shell-panel"><h3>Where the draws land</h3><canvas id="shell-canvas" aria-label="Radial schematic with 32 noise scales and equally sampled draws at three representative scales" role="img"></canvas><p class="plot-note">Radial schematic, not a two-dimensional projection. Faint rings show all 32 scales; colored dots show equal raw counts at three representative scales.</p></section>
+      <section class="plot-panel shell-profiles"><h3>Density and probability tell different stories</h3><canvas id="profile-canvas" aria-label="Ambient point density and radial probability density profiles" role="img"></canvas><p class="plot-note">The density peaks at the center. Volume moves radial probability outward. Both profiles describe individual Gaussian components.</p></section>
+    </div>
+    <div id="playback" class="playback" hidden>
+      <div class="playback-top"><div class="transport"><button type="button" id="play-button">Play</button><button type="button" id="step-button">One step</button><button type="button" id="restart-button">Restart</button><label for="gradient-rule">Update<select id="gradient-rule"><option value="raw">Gradient ascent</option><option value="normalized">Normalize by β</option></select></label><label for="ascent-centers">Climb<select id="ascent-centers"><option value="range">The range</option><option value="single">One mountain</option></select></label></div><span class="iteration-label">Iteration <output id="iteration-value">0</output> / <span id="iteration-end">120</span></span></div>
+      <label class="scrubber-label" for="iteration">Trajectory progress<input type="range" id="iteration" min="0" max="120" step="1" value="0"></label>
+      <p id="playback-status" class="plot-note">Playback retains meaningful motion and stops when the computed tracks settle or escape.</p>
+      <p class="plot-note">Nearly stationary frames are skipped; the counter always shows actual update numbers.</p>
+      <div class="metrics" aria-live="polite"><span>Shown starts <strong id="start-count">18</strong></span><span>Density-decreasing steps <strong id="downhill-count">0</strong></span><span>Outside view <strong id="outside-count">0</strong></span><span>Median log-density gain <strong id="density-gain">0.00</strong></span></div>
+    </div>
+    <div id="landscape-scene" class="scene-landscape" hidden>
+      <section class="plot-panel surface-panel"><div class="plot-heading"><h3 id="surface-title">One fixed density</h3><span id="height-label">Full displayed log-density range</span></div><canvas id="surface-canvas" tabindex="0" aria-label="Rotatable three-dimensional view of the density on a two-dimensional slice. Drag or use left and right arrow keys to rotate." role="img"></canvas><p class="plot-note" id="surface-note">Drag to rotate. Log height rescales the full displayed log-density range; density height is normalized by the maximum shown.</p></section>
+      <section class="plot-panel contour-panel"><div class="plot-heading"><h3 id="contour-title">The uphill directions</h3><span id="contour-hint">Score arrows</span></div><canvas id="contour-canvas" tabindex="0" aria-label="Density contours and score directions on the invariant two-dimensional slice" role="img"></canvas><p class="plot-note" id="contour-note">Contours show the full displayed log-density range. Arrows indicate score direction.</p></section>
+    </div>
+    <div id="landscape-legend" class="mark-legend" hidden><span><i class="legend-center"></i>Training center</span><span><i class="legend-iterate"></i>Current sample and path</span><span><i class="legend-start"></i>Initial position</span></div>
+    <section id="far-field-panel" class="far-field-panel" hidden>
+      <div class="plot-heading"><h3>Broad scales build the foothills</h3><span>Separate one-center comparison</span></div>
+      <div class="far-field-grid"><canvas id="far-field-canvas" role="img" aria-label="One-center radial log-density profiles comparing the current broad cutoff with a fixed reference cutoff; the outer probe remains fixed when noise scales change"></canvas><div class="far-field-numbers"><p id="far-field-probe">Probe radius r = 1.8√d</p><div><span>Effective noise scale</span><strong id="far-field-scale">—</strong><small id="far-field-reference-scale"></small></div><div><span>Score magnitude at the probe</span><strong id="far-field-score">—</strong><small id="far-field-reference-score"></small></div></div></div>
+      <div class="far-field-legend"><span><i class="current-curve"></i><span id="far-field-current-label">Current σmax</span></span><span><i class="reference-curve"></i><span id="far-field-reference-label">Reference σmax</span></span></div>
+      <p class="far-field-delta" id="far-field-delta"></p>
+      <p class="plot-note" id="far-field-note">Broad scales have their strongest influence farther from the centers. This curve shows log density relative to the center, rather than peak-normalized density, so the tail remains visible. The probe is separate from the main local view and is held fixed when σ changes.</p>
+    </section>
+    <div class="reading-line" id="reading-line" aria-live="polite"></div>
+    <p class="slice-note" id="slice-note" hidden><strong>A precise slice.</strong> The surface is the full <i>d</i>-dimensional density evaluated at x₃ = … = x<sub>d</sub> = 0. All centers and shown trajectories lie in this invariant plane. These fixed, illustrative starts are not typical full-dimensional Gaussian initializations.</p>
+    <details class="technical-note"><summary>The density and the two update rules</summary><div><p>We use 32 logarithmically spaced noise scales and the exact weighted mixture <span class="formula">p<sub>MN</sub>(x) ∝ ∑<sub>j,i</sub> σ<sub>i</sub>² 𝒩<sub>d</sub>(x; μ<sub>j</sub>, σ<sub>i</sub>²I)</span>. Its score is <span class="formula">s(x) = β(x)(μ̄(x) − x)</span>. The landscape remains fixed during a run.</p><p>An Euler update takes a finite straight step using the current field. <strong>Gradient ascent:</strong> x<sub>n+1</sub> = x<sub>n</sub> + ηs(x<sub>n</sub>). A large η may overshoot and decrease density. <strong>Normalize by β:</strong> x<sub>n+1</sub> = x<sub>n</sub> + η(μ̄(x<sub>n</sub>) − x<sub>n</sub>). This exact-mixture update increases density for 0 &lt; η &lt; 2. Normalizing preserves continuous integral curves; finite Euler steps need not land on identical paths.</p><p>Changing a parameter reuses the same initial points and recalculates the trajectories. Escaping the visible window is reported rather than corrected. Tracks that become nonfinite or exceed radius 20 stop, and remain counted as outside. The shell view uses individual Gaussian components; the mountain view includes the σ² mixture weights. At every positive noise scale, a Gaussian density is positive everywhere.</p><p>The far-field profile uses a single center and the same 32-scale mixture. The outer probe is at radius 1.8√d, and the profile extends to 2.6√d. Its effective scale is 1/√β at that position. The reference broad cutoff is max(σmin, 0.80), with the same lower cutoff. Each log-density curve subtracts its own center value; no change in the score or density is added for display.</p><p id="stability-note"></p></div></details>
+    <footer class="figure-footer"><span>Exact analytic fields · no neural network approximation</span><button type="button" id="reset-button">Reset the figure</button></footer>
+  </main>
+  <script>
+/* Exact Gaussian-mixture mathematics for the interactive research essay.
+ * No dependencies; safe to load from file:// and in a browser worker.
+ *
+ * API (window.GaussianLandscapeMath, or require(...) in Node):
+ *   prepare({d=2,sigmaMin=.22,sigmaMax=1.3,nScales=32,centers=[[0,0]],sigmas?})
+ *     -> immutable cached configuration. Explicit sigmas override the schedule.
+ *   evaluate(x,y,prepared)
+ *     -> {logDensity,score:[sx,sy],beta,barycenter:[mx,my],
+ *         centerResponsibilities:[...],isFinite}
+ *   step([x,y],prepared,eta,mode='raw'|'normalized')
+ *     -> {point,before,after,deltaLogDensity,isFinite}
+ *   geometricScales(min,max,n), logGamma(z), radialMass(r,sigma,d),
+ *   logRadialMass(r,sigma,d), ambientRelative(r,sigma), shellSummary(sigma,d),
+ *   singleCenterStability(prepared), singleCenterRadialMass(r,prepared).
+ *
+ * The displayed x/y coordinates lie in an invariant two-dimensional slice:
+ * all centers and the other d-2 sample coordinates are zero off this plane.
+ * Evaluated height is the FULL d-dimensional ambient density on that slice,
+ * not a 2D marginal or a radial probability density. The exact target is
+ * p_MN=(M sum_i sigma_i^2)^-1 sum_j,i sigma_i^2 N_d(x;mu_j,sigma_i^2 I).
+ * No trajectory clipping or monotonicity correction is performed here.
+ */
+(function attach(root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.GaussianLandscapeMath = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function makeAPI() {
+  'use strict';
+  const LOG_TWO_PI = Math.log(2 * Math.PI);
+  const LANCZOS = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
+  ];
+
+  function finitePositive(value, name) {
+    if (!Number.isFinite(value) || value <= 0) throw new RangeError(name + ' must be finite and positive');
+    return value;
+  }
+
+  function dimension(value) {
+    if (!Number.isInteger(value) || value < 2) throw new RangeError('d must be an integer at least 2');
+    return value;
+  }
+
+  function logGamma(z) {
+    finitePositive(z, 'logGamma argument');
+    if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
+    z -= 1;
+    let x = LANCZOS[0];
+    for (let i = 1; i < LANCZOS.length; i++) x += LANCZOS[i] / (z + i);
+    const t = z + 7.5;
+    return 0.5 * LOG_TWO_PI + (z + 0.5) * Math.log(t) - t + Math.log(x);
+  }
+
+  function geometricScales(min, max, count) {
+    finitePositive(min, 'sigmaMin'); finitePositive(max, 'sigmaMax');
+    if (max < min) throw new RangeError('sigmaMax must be at least sigmaMin');
+    if (!Number.isInteger(count) || count < 1 || count > 4096) throw new RangeError('nScales must be an integer from 1 to 4096');
+    if (count === 1) return [min];
+    const width = Math.log(max / min);
+    const result = Array.from({length:count}, (_, i) => min * Math.exp(width * i / (count - 1)));
+    result[0] = min; result[result.length - 1] = max;
+    return result;
+  }
+
+  function prepare(input) {
+    input = input || {};
+    const d = dimension(input.d === undefined ? 2 : input.d);
+    const sourceCenters = input.centers === undefined ? [[0, 0]] : input.centers;
+    if (!Array.isArray(sourceCenters) || !sourceCenters.length) throw new RangeError('at least one center is required');
+    const centers = sourceCenters.map((c) => {
+      const x = Array.isArray(c) ? c[0] : c.x;
+      const y = Array.isArray(c) ? c[1] : c.y;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) throw new RangeError('each center needs finite x and y coordinates');
+      return Object.freeze([x, y]);
+    });
+    const sigmas = input.sigmas === undefined
+      ? geometricScales(input.sigmaMin === undefined ? 0.22 : input.sigmaMin,
+          input.sigmaMax === undefined ? 1.3 : input.sigmaMax,
+          input.nScales === undefined ? 32 : input.nScales)
+      : Array.from(input.sigmas);
+    if (!sigmas.length) throw new RangeError('at least one noise scale is required');
+    sigmas.forEach(s => finitePositive(s, 'sigma'));
+    const sumVariance = sigmas.reduce((sum, s) => sum + s * s, 0);
+    if (!Number.isFinite(sumVariance)) throw new RangeError('noise variances overflow');
+    const invVariances = sigmas.map(s => 1 / (s * s));
+    if (invVariances.some(v => !Number.isFinite(v))) throw new RangeError('noise precision overflows');
+    return Object.freeze({
+      d,
+      centers: Object.freeze(centers),
+      sigmas: Object.freeze(sigmas),
+      sigmaMin: Math.min.apply(null, sigmas),
+      sigmaMax: Math.max.apply(null, sigmas),
+      nScales: sigmas.length,
+      invVariances: Object.freeze(invVariances),
+      logCoefficients: Object.freeze(sigmas.map(s => (2 - d) * Math.log(s))),
+      logNormalizer: Math.log(centers.length * sumVariance) + 0.5 * d * LOG_TWO_PI,
+      sumVariance,
+      _gaussianLandscapePrepared: true
+    });
+  }
+
+  function invalidEvaluation(count) {
+    return {logDensity:-Infinity, score:[NaN,NaN], beta:NaN,
+      barycenter:[NaN,NaN], centerResponsibilities:Array(count).fill(0), isFinite:false};
+  }
+
+  function evaluate(x, y, config) {
+    if (!config || !config._gaussianLandscapePrepared) throw new TypeError('evaluate requires a prepare(...) configuration');
+    const centers = config.centers, n = centers.length;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return invalidEvaluation(n);
+    const distances = new Float64Array(n);
+    let maximum = -Infinity;
+    for (let j = 0; j < n; j++) {
+      const dx = x - centers[j][0], dy = y - centers[j][1];
+      const r2 = dx * dx + dy * dy;
+      distances[j] = r2;
+      for (let i = 0; i < config.nScales; i++) {
+        const term = config.logCoefficients[i] - 0.5 * r2 * config.invVariances[i];
+        if (term > maximum) maximum = term;
+      }
+    }
+    if (!Number.isFinite(maximum)) return invalidEvaluation(n);
+    let sum = 0, precisionSum = 0, baryX = 0, baryY = 0;
+    const centerResponsibilities = new Array(n).fill(0);
+    for (let j = 0; j < n; j++) {
+      let centerMass = 0, centerPrecision = 0;
+      for (let i = 0; i < config.nScales; i++) {
+        const term = config.logCoefficients[i] - 0.5 * distances[j] * config.invVariances[i];
+        const relativeWeight = Math.exp(term - maximum);
+        centerMass += relativeWeight;
+        centerPrecision += relativeWeight * config.invVariances[i];
+      }
+      centerResponsibilities[j] = centerMass;
+      sum += centerMass;
+      precisionSum += centerPrecision;
+      baryX += centerPrecision * centers[j][0];
+      baryY += centerPrecision * centers[j][1];
+    }
+    const beta = precisionSum / sum;
+    baryX /= precisionSum; baryY /= precisionSum;
+    const score = [beta * (baryX - x), beta * (baryY - y)];
+    const logDensity = maximum + Math.log(sum) - config.logNormalizer;
+    for (let j = 0; j < n; j++) centerResponsibilities[j] /= sum;
+    const isFinite = Number.isFinite(logDensity) && Number.isFinite(beta)
+      && Number.isFinite(baryX) && Number.isFinite(baryY)
+      && Number.isFinite(score[0]) && Number.isFinite(score[1]);
+    return {logDensity, score, beta, barycenter:[baryX,baryY], centerResponsibilities, isFinite};
+  }
+
+  function step(point, config, eta, mode) {
+    if (!Number.isFinite(eta) || eta < 0) throw new RangeError('eta must be finite and nonnegative');
+    mode = mode || 'raw';
+    if (mode !== 'raw' && mode !== 'normalized') throw new RangeError('mode must be raw or normalized');
+    const before = evaluate(point[0], point[1], config);
+    const direction = mode === 'normalized'
+      ? [before.barycenter[0] - point[0], before.barycenter[1] - point[1]]
+      : before.score;
+    const next = [point[0] + eta * direction[0], point[1] + eta * direction[1]];
+    const after = evaluate(next[0], next[1], config);
+    const deltaLogDensity = after.logDensity - before.logDensity;
+    return {point:next, before, after, deltaLogDensity,
+      isFinite:before.isFinite && after.isFinite && Number.isFinite(deltaLogDensity)};
+  }
+
+  function logRadialMass(r, sigma, d) {
+    finitePositive(sigma, 'sigma'); dimension(d);
+    if (!Number.isFinite(r) || r < 0) return -Infinity;
+    if (r === 0) return -Infinity; // d>=2: the radial PDF is zero at the origin.
+    return (d - 1) * Math.log(r) - 0.5 * (r / sigma) * (r / sigma)
+      - (0.5 * d - 1) * Math.log(2) - logGamma(0.5 * d) - d * Math.log(sigma);
+  }
+
+  function radialMass(r, sigma, d) {
+    return Math.exp(logRadialMass(r, sigma, d));
+  }
+
+  function ambientRelative(r, sigma) {
+    finitePositive(sigma, 'sigma');
+    if (!Number.isFinite(r) || r < 0) return 0;
+    return Math.exp(-0.5 * (r / sigma) * (r / sigma));
+  }
+
+  function shellSummary(sigma, d) {
+    finitePositive(sigma, 'sigma'); dimension(d);
+    const mean = sigma * Math.sqrt(2) * Math.exp(logGamma(0.5 * (d + 1)) - logGamma(0.5 * d));
+    const variance = Math.max(0, d * sigma * sigma - mean * mean);
+    return {
+      d, sigma,
+      mode:sigma * Math.sqrt(d - 1), mean,
+      radiusApprox:sigma * Math.sqrt(d), standardDeviation:Math.sqrt(variance),
+      relativeWidth:Math.sqrt(variance) / mean,
+      log2VolumeDoubling:d, effectiveMassDoubling:4,
+      log2WeightedDensityDoubling:2 - d
+    };
+  }
+
+  function singleCenterStability(config) {
+    if (config.centers.length !== 1) throw new RangeError('the exact isotropic center threshold requires one center');
+    const center = config.centers[0], ev = evaluate(center[0], center[1], config);
+    return {betaAtCenter:ev.beta, localRawEulerLimit:2 / ev.beta,
+      conservativeRawEulerLimit:2 * config.sigmaMin * config.sigmaMin,
+      normalizedEulerLimit:2,
+      note:'Strict inequalities; the raw limit is local, at the single-center peak.'};
+  }
+
+  function singleCenterRadialMass(r, config) {
+    if (config.centers.length !== 1) throw new RangeError('radial symmetry requires one center');
+    let result = 0;
+    for (const sigma of config.sigmas) result += sigma * sigma * radialMass(r, sigma, config.d);
+    return result / config.sumVariance;
+  }
+
+  return Object.freeze({prepare, evaluate, step, geometricScales, logGamma,
+    logRadialMass, radialMass, ambientRelative, shellSummary,
+    singleCenterStability, singleCenterRadialMass});
+});
+
+</script>
+  <script>
+(function () {
+  'use strict';
+  const M = window.GaussianLandscapeMath;
+  const embedded = window.self !== window.top || new URLSearchParams(window.location.search).get('embedded') === '1';
+  if (embedded) document.body.dataset.embedded = 'true';
+  let lastPostedHeight = 0;
+  function reportHeight() {
+    if (!embedded) return;
+    const height = Math.ceil(document.body.getBoundingClientRect().height + 24);
+    if (Math.abs(height-lastPostedHeight)>1) {lastPostedHeight=height;window.parent.postMessage({type:'gaussian-landscape-height',height},'*');}
+  }
+  const $ = id => document.getElementById(id);
+  const BLUE = '#416e90', ORANGE = '#c77849', INK = '#181a1b', MUTED = '#3d4348', BG = '#fbfaf7';
+  const COLORS = [BLUE, '#8295a0', ORANGE];
+  const MANY = [[-2.2,-.3],[-.9,1.6],[1.3,1.35],[2,-1.15],[-.45,-1.65]];
+  const LIMIT = 4.2, MAX_ITER = 120, N_SCALES = 32;
+  const defaults = {stage:0,d:16,sigmaMin:.32,sigmaMax:1.35,eta:.03,rule:'raw',height:'log',target:'range',iteration:0};
+  let state = {...defaults}, config, surface, contour, farField, trajectories = [], extraStarts = [], playing = false;
+  let yaw = .72, pitch = .46, pending = false, resizeTimer = null;
+  let playbackTimer = null, playbackStarted = 0, playbackFrom = 0, playbackDuration = 0;
+  let playbackEndIteration = MAX_ITER, playbackIterations = [0], playbackFrames = [0], gridRevision = 0, surfaceCache = null, contourCache = null;
+  let gridConfigKey = '', farFieldConfigKey = '';
+  const POSITION_TOLERANCE = 2e-4;
+  const canvases = ['shell-canvas','profile-canvas','surface-canvas','contour-canvas','far-field-canvas'].map($);
+  const contexts = new Map();
+  const stories = [
+    ['Equal draws occupy very different volumes','At each noise scale, draw the same number of examples. In high dimensions they lie near radius σ√d. Shell volume scales as σᵈ, while effective mixture mass scales as σ². For d > 2, volume grows faster.'],
+    ['The scales combine into one mountain','Around one center, combine 32 Gaussian components with σ² weights. The broad components extend the foothills; the narrow components concentrate density near the summit.'],
+    ['Nearby mountains shape one another','Add five centers without changing the rule. Their contributions overlap into a fixed landscape. The score points toward a state-dependent average of the centers.'],
+    ['One fixed field, many climbing paths','Keep the terrain fixed and move each point along its score. Adjust η to see gradual ascent, oscillation, or overshoot. The same starting points are reused whenever a parameter changes.']
+  ];
+  function rng(seed) { let x=seed>>>0; return ()=>{x=(Math.imul(1664525,x)+1013904223)>>>0;return (x+.5)/4294967296;}; }
+  function normal(random) { return Math.sqrt(-2*Math.log(random()))*Math.cos(2*Math.PI*random()); }
+  const random = rng(1739);
+  const starts = Array.from({length:18},()=>[Math.max(-3.7,Math.min(3.7,normal(random)*2)),Math.max(-3.7,Math.min(3.7,normal(random)*2))]);
+  const shellRandom = rng(287), normals = Array.from({length:72},()=>Array.from({length:128},()=>normal(shellRandom))), angles = Array.from({length:72},()=>2*Math.PI*shellRandom());
+  const baseStarts = () => starts.concat(extraStarts).map(p=>p.slice());
+  function isSingle() { return state.stage===1 || (state.stage===3 && state.target==='single'); }
+  function chooseConfig() { return M.prepare({d:state.d,sigmaMin:state.sigmaMin,sigmaMax:state.sigmaMax,nScales:N_SCALES,centers:isSingle()?[[0,0]]:MANY}); }
+  function etaRange() { return state.rule==='raw'?[.002,.45]:[.02,2.5]; }
+  function etaToSlider(eta) { const [a,b]=etaRange();return Math.round(1000*Math.log(eta/a)/Math.log(b/a)); }
+  function sliderToEta(t) { const [a,b]=etaRange();return a*Math.pow(b/a,t/1000); }
+  function format(v,n=2) { return Number.isFinite(v)?v.toFixed(n):'—'; }
+  function syncControls() {
+    $('dimension').value=state.d;$('dimension-value').value=state.d;
+    $('sigma-min').value=state.sigmaMin;$('sigma-min-value').value=format(state.sigmaMin);
+    $('sigma-max').value=state.sigmaMax;$('sigma-max-value').value=format(state.sigmaMax);
+    $('step-size').value=etaToSlider(state.eta);$('step-size-value').value=format(state.eta,3);
+    const [a,b]=etaRange();$('eta-min').textContent=format(a,3);$('eta-max').textContent=format(b,3);
+    $('gradient-rule').value=state.rule;$('ascent-centers').value=state.target;
+    $('iteration').max=playbackEndIteration;$('iteration').value=state.iteration;$('iteration-value').value=state.iteration;$('iteration-end').textContent=playbackEndIteration;
+    const active=state.stage===3;
+    $('play-button').disabled=pending||!active;
+    $('step-size').disabled=!active;document.querySelector('.step-parameter').classList.toggle('inactive',!active);
+    document.querySelector('.height-toggle').classList.toggle('inactive',state.stage===0);
+    document.querySelectorAll('[data-stage]').forEach(el=>{const active=+el.dataset.stage===state.stage;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',active);});
+    document.querySelectorAll('[data-height]').forEach(el=>{const active=el.dataset.height===state.height;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',active);});
+    $('shell-scene').hidden=state.stage!==0;$('landscape-scene').hidden=state.stage===0;$('playback').hidden=!active;$('slice-note').hidden=state.stage===0;$('far-field-panel').hidden=state.stage===0;
+    $('stage-heading').textContent=stories[state.stage][0];$('stage-description').textContent=stories[state.stage][1];
+    $('surface-title').textContent=isSingle()?'One fixed density':'The fixed density landscape';
+    $('height-label').textContent=state.height==='density'?'Height: p / max shown':'Full '+(surface?format(surface.range,1):'')+'-unit log range';
+    $('surface-note').textContent=state.height==='density'?'Drag to rotate. Density height is p divided by the largest value shown. Narrow peaks can hide changes in the broad tails.':'Drag to rotate. Height rescales the full displayed log-density range to [0,1], retaining the broad foothills.';
+    $('contour-title').textContent=active?'The climb from above':'The uphill directions';
+    $('contour-hint').textContent=active?'Click to add a start':'Score arrows';
+    $('contour-note').textContent='Contours cover the full displayed log-density range'+(surface?' ('+format(surface.range,1)+' log units)':'')+'. '+(active?'Orange paths are discrete updates. Click to add an initial point.':'Arrows indicate score direction.');
+    $('contour-canvas').classList.toggle('can-add',active);
+    $('landscape-legend').hidden=state.stage===0;$('play-button').textContent=playing?'Pause':'Play';
+    $('play-button').setAttribute('aria-pressed',String(playing));
+    const converged=trajectories.filter(t=>t.status==='converged').length, escaped=trajectories.filter(t=>t.status==='escaped').length;
+    $('playback-status').textContent=converged+escaped===trajectories.length&&trajectories.length?'Playback ends at update '+playbackEndIteration+': '+converged+' stationary tracks, '+escaped+' escaped.':'Playback shows up to '+playbackEndIteration+' actual updates; moving or oscillating tracks are retained.';
+  }
+  function canvasContext(canvas) {
+    const rect=canvas.getBoundingClientRect(), dpr=Math.min(3,Math.max(2,window.devicePixelRatio||1)), w=Math.max(1,rect.width), h=Math.max(1,rect.height);
+    if (w < 60 || h < 80) return null;
+    if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle=BG;ctx.fillRect(0,0,w,h);contexts.set(canvas.id,{ctx,w,h});return {ctx,w,h};
+  }
+  function line(ctx,points,color,width=1) { if(points.length<2)return;ctx.beginPath();ctx.moveTo(...points[0]);for(let i=1;i<points.length;i++)ctx.lineTo(...points[i]);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke(); }
+  function circle(ctx,x,y,r,color,stroke) { ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();} }
+  function text(ctx,value,x,y,color=MUTED,size=12,align='left') { ctx.fillStyle=color;ctx.font=Math.max(12,size)+'px "Segoe UI",Arial,sans-serif';ctx.textAlign=align;ctx.fillText(value,x,y); }
+  function arrow(ctx,a,b,color,width=1) { const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<.1)return;line(ctx,[a,b],color,width);const ux=dx/len,uy=dy/len,r=4;ctx.beginPath();ctx.moveTo(...b);ctx.lineTo(b[0]-r*ux+r*.5*uy,b[1]-r*uy-r*.5*ux);ctx.lineTo(b[0]-r*ux-r*.5*uy,b[1]-r*uy+r*.5*ux);ctx.closePath();ctx.fillStyle=color;ctx.fill(); }
+  function shellScales() { return [state.sigmaMin,Math.sqrt(state.sigmaMin*state.sigmaMax),state.sigmaMax]; }
+  function drawShells() {
+    const view=canvasContext($('shell-canvas'));if(!view)return;
+    const {ctx,w,h}=view, scales=shellScales(), maxR=state.sigmaMax*(Math.sqrt(state.d)+2.7), scale=Math.min(w*.40,(h-65)*.44)/maxR,cx=w*.5,cy=(h-15)*.51;
+    const radii=normals.map(row=>Math.sqrt(row.slice(0,state.d).reduce((a,v)=>a+v*v,0)));
+    for(const sigma of M.geometricScales(state.sigmaMin,state.sigmaMax,N_SCALES)){ctx.beginPath();ctx.arc(cx,cy,sigma*Math.sqrt(state.d)*scale,0,Math.PI*2);ctx.strokeStyle='rgba(92,119,137,.16)';ctx.lineWidth=.7;ctx.stroke();}
+    for(let k=2;k>=0;k--){const sigma=scales[k],rr=sigma*Math.sqrt(state.d)*scale;ctx.beginPath();ctx.arc(cx,cy,rr,0,Math.PI*2);ctx.strokeStyle=COLORS[k]+'75';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);for(let j=0;j<radii.length;j++){const r=radii[j]*sigma*scale;circle(ctx,cx+r*Math.cos(angles[j]),cy+r*Math.sin(angles[j]),1.6,COLORS[k]+'c0');}}
+    circle(ctx,cx,cy,3.1,INK);text(ctx,'μ',cx+8,cy+5,INK,14);
+    scales.forEach((s,k)=>{circle(ctx,12+k*w/3,h-27,3,COLORS[k]);text(ctx,'σ = '+format(s),23+k*w/3,h-23,INK,14);});
+    const r=scales[1]*Math.sqrt(state.d)*scale,angle=-.45;arrow(ctx,[cx,cy],[cx+r*Math.cos(angle),cy+r*Math.sin(angle)],INK+'b0');text(ctx,'≈ σ√d',cx+r*.48,cy-r*.28-7,INK,12);
+  }
+  function drawProfiles() {
+    const view=canvasContext($('profile-canvas'));if(!view)return;
+    const {ctx,w,h}=view,scales=shellScales(),maxR=state.sigmaMax*(Math.sqrt(state.d)+3),left=38,right=w-17,plotW=right-left;
+    const plots=[{top:30,bottom:h*.43,title:'Ambient point density / its peak',mass:false},{top:h*.57,bottom:h-30,title:'Radial probability density',mass:true}];
+    for(const p of plots){const count=220,values=scales.map(s=>Array.from({length:count},(_,i)=>p.mass?M.radialMass(maxR*i/(count-1),s,state.d):M.ambientRelative(maxR*i/(count-1),s)));const maxY=p.mass?Math.max(...values.flat())*1.05:1.05;line(ctx,[[left,p.top+10],[left,p.bottom],[right,p.bottom]],'#cbd3d6',1);text(ctx,p.title,left,p.top-10,INK,12);text(ctx,p.mass?format(maxY,2):'1',left-8,p.top+15,MUTED,10,'right');text(ctx,'0',left-8,p.bottom+3,MUTED,10,'right');for(let k=0;k<3;k++){line(ctx,values[k].map((v,i)=>[left+plotW*i/(count-1),p.bottom-(p.bottom-p.top-10)*v/maxY]),COLORS[k],1.8);}for(let i=0;i<3;i++){let r=maxR*i/2;const x=left+plotW*i/2;text(ctx,format(r,1),x,p.bottom+16,MUTED,10,'center');}text(ctx,'radius r',right,p.bottom+30,MUTED,10,'right');}
+  }
+  function buildGrids() {
+    const nextKey=JSON.stringify([state.d,state.sigmaMin,state.sigmaMax,config.centers]);
+    if(surface&&contour&&gridConfigKey===nextKey)return;
+    gridConfigKey=nextKey;
+    gridRevision++;surfaceCache=null;contourCache=null;
+    const n=55,points=[];let max=-Infinity,min=Infinity;
+    for(let iy=0;iy<n;iy++)for(let ix=0;ix<n;ix++){const x=-LIMIT+2*LIMIT*ix/(n-1),y=-LIMIT+2*LIMIT*iy/(n-1),lp=M.evaluate(x,y,config).logDensity;points.push({x,y,lp});max=Math.max(max,lp);min=Math.min(min,lp);}
+    config.centers.forEach(p=>{max=Math.max(max,M.evaluate(p[0],p[1],config).logDensity);});
+    const size=128,image=new ImageData(size,size);
+    const values=[];
+    for(let iy=0;iy<size;iy++)for(let ix=0;ix<size;ix++){const x=-LIMIT+2*LIMIT*ix/(size-1),y=LIMIT-2*LIMIT*iy/(size-1);values.push(M.evaluate(x,y,config).logDensity);}
+    for(const value of values){min=Math.min(min,value);max=Math.max(max,value);}
+    const range=Math.max(1e-12,max-min);surface={n,points,min,max,range};
+    const rgbA=[251,250,247],rgbB=[126,161,183];
+    for(let iy=0;iy<size;iy++)for(let ix=0;ix<size;ix++){const index=iy*size+ix,q=Math.max(0,Math.min(1,(values[index]-min)/range));for(let c=0;c<3;c++)image.data[index*4+c]=rgbA[c]*(1-q*.7)+rgbB[c]*q*.7;image.data[index*4+3]=255;}
+    const segments=[];
+    for(let level=1;level<12;level++){const threshold=min+level*range/12;for(let iy=0;iy<size-1;iy++)for(let ix=0;ix<size-1;ix++){const indexes=[iy*size+ix,iy*size+ix+1,(iy+1)*size+ix+1,(iy+1)*size+ix],positions=[[ix,iy],[ix+1,iy],[ix+1,iy+1],[ix,iy+1]],crossings=[];for(let edge=0;edge<4;edge++){const next=(edge+1)%4,a=values[indexes[edge]],b=values[indexes[next]];if((a>=threshold)!==(b>=threshold)){const t=(threshold-a)/(b-a);crossings.push([(positions[edge][0]+t*(positions[next][0]-positions[edge][0]))/(size-1),(positions[edge][1]+t*(positions[next][1]-positions[edge][1]))/(size-1)]);}}if(crossings.length===2)segments.push([crossings[0],crossings[1]]);else if(crossings.length===4){segments.push([crossings[0],crossings[1]]);segments.push([crossings[2],crossings[3]]);}}}
+    const raster=document.createElement('canvas');raster.width=size;raster.height=size;raster.getContext('2d').putImageData(image,0,0);contour={raster,segments};
+  }
+  function computeTrajectories() {
+    const tolerance=POSITION_TOLERANCE*Math.max(1,state.sigmaMin),scoreTolerance=tolerance/(state.sigmaMin*state.sigmaMin);
+    trajectories=baseStarts().map(start=>{const first=M.evaluate(...start,config),points=[{point:start,lp:first.logDensity,delta:0,out:false}],segments=[];let p=start,status='limit';for(let i=0;i<MAX_ITER;i++){const step=M.step(p,config,state.eta,state.rule),movement=Math.hypot(step.point[0]-p[0],step.point[1]-p[1]),residual=Math.hypot(step.after.barycenter[0]-step.point[0],step.after.barycenter[1]-step.point[1]),scoreResidual=Math.hypot(...step.after.score);const out=!step.isFinite||Math.hypot(...step.point)>20;points.push({point:step.point,lp:step.after.logDensity,delta:step.deltaLogDensity,out,movement,residual,scoreResidual});const clipped=clipToView(p,step.point);segments.push(clipped?clipped.map(q=>({point:q,lp:M.evaluate(...q,config).logDensity})):null);p=step.point;if(out){status='escaped';break;}if(residual<=tolerance&&scoreResidual<=scoreTolerance&&(movement<=tolerance||residual<=tolerance*.1)){status='converged';break;}}return {start,points,segments,status};});
+    playbackEndIteration=Math.max(1,...trajectories.map(t=>t.points.length-1));
+    playbackIterations=[0];let previous=0;
+    for(let i=1;i<=playbackEndIteration;i++){
+      const visibleChange=trajectories.some(t=>{const a=t.points[Math.min(previous,t.points.length-1)],b=t.points[Math.min(i,t.points.length-1)];return a.out!==b.out||(!a.out&&!b.out&&Math.hypot(b.point[0]-a.point[0],b.point[1]-a.point[1])>=.008);});
+      if(visibleChange||i===playbackEndIteration){playbackIterations.push(i);previous=i;}
+    }
+    state.iteration=Math.min(state.iteration,playbackEndIteration);
+  }
+  function buildFarField() {
+    const nextKey=[state.d,state.sigmaMin,state.sigmaMax].join(':');
+    if(farField&&farFieldConfigKey===nextKey)return;
+    farFieldConfigKey=nextKey;
+    const baselineSigmaMax=Math.max(.8,state.sigmaMin),radius=1.8*Math.sqrt(state.d),maxRadius=2.6*Math.sqrt(state.d);
+    const currentConfig=M.prepare({d:state.d,sigmaMin:state.sigmaMin,sigmaMax:state.sigmaMax,nScales:N_SCALES,centers:[[0,0]]});
+    const referenceConfig=M.prepare({d:state.d,sigmaMin:state.sigmaMin,sigmaMax:baselineSigmaMax,nScales:N_SCALES,centers:[[0,0]]});
+    const centerCurrent=M.evaluate(0,0,currentConfig).logDensity,centerReference=M.evaluate(0,0,referenceConfig).logDensity;
+    const summarize=(prepared,center)=>{const e=M.evaluate(radius,0,prepared);return{logDensity:e.logDensity,relativeLogDensity:e.logDensity-center,scoreMagnitude:Math.hypot(...e.score),effectiveScale:1/Math.sqrt(e.beta)};};
+    const current=summarize(currentConfig,centerCurrent),reference=summarize(referenceConfig,centerReference),samples=[];
+    for(let i=0;i<181;i++){const r=maxRadius*i/180;samples.push({r,current:M.evaluate(r,0,currentConfig).logDensity-centerCurrent,reference:M.evaluate(r,0,referenceConfig).logDensity-centerReference});}
+    farField={radius,maxRadius,baselineSigmaMax,currentSigmaMax:state.sigmaMax,nScales:N_SCALES,current,reference,samples,tailLift:current.relativeLogDensity-reference.relativeLogDensity};
+  }
+  function drawFarField() {
+    const view=canvasContext($('far-field-canvas'));if(!view||!farField)return;const{ctx,w,h}=view;
+    const left=70,right=w-17,top=24,bottom=h-42,minLog=Math.min(...farField.samples.map(p=>Math.min(p.current,p.reference))),range=Math.max(1,-minLog),xy=(r,lp)=>[left+r/farField.maxRadius*(right-left),top-lp/range*(bottom-top)];
+    for(const fraction of [0,.5,1]){const lp=-range*fraction,p=xy(0,lp);line(ctx,[[left,p[1]],[right,p[1]]],'#d7e0e4',1);text(ctx,format(lp,0),left-9,p[1]+5,'#394a55',14,'right');}
+    const referencePoints=farField.samples.map(p=>xy(p.r,p.reference));ctx.save();ctx.setLineDash([7,5]);line(ctx,referencePoints,ORANGE,2);ctx.restore();
+    line(ctx,farField.samples.map(p=>xy(p.r,p.current)),BLUE,2.5);
+    const probeX=xy(farField.radius,0)[0];ctx.save();ctx.setLineDash([3,4]);line(ctx,[[probeX,top],[probeX,bottom]],'#536e7f',1);ctx.restore();
+    circle(ctx,...xy(farField.radius,farField.current.relativeLogDensity),4.4,BLUE,BG);circle(ctx,...xy(farField.radius,farField.reference.relativeLogDensity),4.4,ORANGE,BG);
+    for(const r of [0,farField.radius,farField.maxRadius])text(ctx,format(r,1),xy(r,0)[0],bottom+22,'#394a55',14,'center');
+    text(ctx,'log p(r) − log p(0)',left,15,INK,14);text(ctx,'radius r',right,h-3,'#394a55',14,'right');
+    $('far-field-probe').textContent='Outer probe r = 1.8√d = '+format(farField.radius,2);
+    $('far-field-scale').textContent=format(farField.current.effectiveScale,3)+' current';$('far-field-reference-scale').textContent=format(farField.reference.effectiveScale,3)+' reference';
+    $('far-field-score').textContent=format(farField.current.scoreMagnitude,3)+' current';$('far-field-reference-score').textContent=format(farField.reference.scoreMagnitude,3)+' reference';
+    $('far-field-current-label').textContent='Current σmax = '+format(state.sigmaMax,2);$('far-field-reference-label').textContent='Reference σmax = '+format(farField.baselineSigmaMax,2);
+    const signed=(v)=>v>=0?'+'+format(v,3):'−'+format(-v,3);
+    $('far-field-delta').textContent='At the same outer probe: effective scale changes by '+signed(farField.current.effectiveScale-farField.reference.effectiveScale)+' and score magnitude by '+signed(farField.current.scoreMagnitude-farField.reference.scoreMagnitude)+' versus the reference. The log-density tail is '+signed(farField.tailLift)+' units higher.';
+  }
+  function zHeight(lp) { return state.height==='density'?Math.exp(Math.min(0,lp-surface.max)):Math.max(0,Math.min(1,(lp-surface.min)/surface.range)); }
+  function projection(w,h) {
+    const scale=Math.min(w/13.8,h/9.9),top=24,bottom=h-35,heightScale=(h-87)*.66;
+    const raw=(x,y,z)=>(x*Math.sin(yaw)+y*Math.cos(yaw))*scale*pitch-z*heightScale;
+    const ys=[raw(-LIMIT,-LIMIT,0),raw(-LIMIT,LIMIT,0),raw(LIMIT,-LIMIT,0),raw(LIMIT,LIMIT,0)];
+    if(surface)for(const p of surface.points)ys.push(raw(p.x,p.y,zHeight(p.lp)));
+    const low=Math.min(...ys),high=Math.max(...ys),fit=Math.min(1,(bottom-top)/Math.max(1,high-low));
+    return (x,y,z)=>[w*.5+(x*Math.cos(yaw)-y*Math.sin(yaw))*scale*fit,top+(raw(x,y,z)-low)*fit];
+  }
+  function drawSurface() {
+    const view=canvasContext($('surface-canvas'));if(!view||!surface)return;const {ctx,w,h}=view;
+    const project=projection(w,h),n=surface.n;
+    const cacheKey=[gridRevision,w,h,$('surface-canvas').width,yaw,pitch,state.height].join(':');
+    if(surfaceCache&&surfaceCache.key===cacheKey)ctx.drawImage(surfaceCache.image,0,0,w,h);
+    else{
+    for(let k=-4;k<=4;k+=2){line(ctx,[project(k,-LIMIT,0),project(k,LIMIT,0)],'#dfe5e7');line(ctx,[project(-LIMIT,k,0),project(LIMIT,k,0)],'#dfe5e7');}
+    const cells=[];for(let y=0;y<n-1;y++)for(let x=0;x<n-1;x++){const p=surface.points[y*n+x],depth=p.x*Math.sin(yaw)+p.y*Math.cos(yaw);cells.push({x,y,depth});}cells.sort((a,b)=>a.depth-b.depth);
+    for(const cell of cells){const p=[surface.points[cell.y*n+cell.x],surface.points[cell.y*n+cell.x+1],surface.points[(cell.y+1)*n+cell.x+1],surface.points[(cell.y+1)*n+cell.x]],z=p.reduce((s,v)=>s+zHeight(v.lp),0)/4,points=p.map(q=>project(q.x,q.y,zHeight(q.lp)));ctx.beginPath();ctx.moveTo(...points[0]);for(let i=1;i<4;i++)ctx.lineTo(...points[i]);ctx.closePath();const blend=.18+.72*Math.pow(z,.6),a=[234,240,241],b=[65,110,144];ctx.fillStyle='rgb('+a.map((v,i)=>Math.round(v*(1-blend)+b[i]*blend)).join(',')+')';ctx.fill();if(cell.x%5===0||cell.y%5===0){ctx.strokeStyle='rgba(50,90,117,.12)';ctx.lineWidth=.5;ctx.stroke();}}
+    const ax=project(LIMIT,LIMIT,0),ay=project(-LIMIT,LIMIT,0);text(ctx,'x₁',ax[0]+8,ax[1]+13,MUTED,12);text(ctx,'x₂',ay[0]-5,ay[1]+17,MUTED,12);text(ctx,'d = '+state.d+' · 32 noise scales',w-9,h-10,MUTED,11,'right');
+    const image=document.createElement('canvas');image.width=$('surface-canvas').width;image.height=$('surface-canvas').height;image.getContext('2d').drawImage($('surface-canvas'),0,0);surfaceCache={key:cacheKey,image};
+    }
+    if(state.stage===3){ctx.save();for(const t of trajectories){const last=Math.min(state.iteration,t.points.length-1);for(let i=1;i<=last;i++){const a=t.points[i-1],b=t.points[i];if(a.out)break;const segment=t.segments[i-1];if(segment)line(ctx,segment.map(p=>project(...p.point,zHeight(p.lp)+.015)),'rgba(199,120,73,.78)',1.2);if(b.out)break;}const q=t.points[last];if(!q.out&&Math.abs(q.point[0])<LIMIT&&Math.abs(q.point[1])<LIMIT){const pt=project(...q.point,zHeight(q.lp)+.02);circle(ctx,...pt,2.8,ORANGE,BG);}}ctx.restore();}
+  }
+  function contourTransform(w,h) { const size=Math.min(w-62,h-53),left=(w-size)/2,top=17;return {size,left,top,xy:p=>[left+(p[0]+LIMIT)/(2*LIMIT)*size,top+(LIMIT-p[1])/(2*LIMIT)*size]}; }
+  function clipToView(a,b) {
+    if (![...a,...b].every(Number.isFinite)) return null;
+    let t0=0,t1=1;const dx=b[0]-a[0],dy=b[1]-a[1],ps=[-dx,dx,-dy,dy],qs=[a[0]+LIMIT,LIMIT-a[0],a[1]+LIMIT,LIMIT-a[1]];
+    for(let k=0;k<4;k++){if(Math.abs(ps[k])<1e-15){if(qs[k]<0)return null;}else{const t=qs[k]/ps[k];if(ps[k]<0)t0=Math.max(t0,t);else t1=Math.min(t1,t);if(t0>t1)return null;}}
+    return [[a[0]+t0*dx,a[1]+t0*dy],[a[0]+t1*dx,a[1]+t1*dy]];
+  }
+  function drawContour() {
+    const canvas=$('contour-canvas'),view=canvasContext(canvas);if(!view||!contour)return;
+    const {ctx,w,h}=view,{size,left,top,xy}=contourTransform(w,h),key=[gridRevision,w,h,canvas.width,state.stage].join(':');
+    if(contourCache&&contourCache.key===key)ctx.drawImage(contourCache.image,0,0,w,h);
+    else{
+      ctx.drawImage(contour.raster,left,top,size,size);ctx.save();ctx.beginPath();ctx.rect(left,top,size,size);ctx.clip();ctx.beginPath();
+      for(const segment of contour.segments){ctx.moveTo(left+segment[0][0]*size,top+segment[0][1]*size);ctx.lineTo(left+segment[1][0]*size,top+segment[1][1]*size);}
+      ctx.strokeStyle='rgba(89,128,154,.48)';ctx.lineWidth=.65;ctx.stroke();
+      if(state.stage!==3)for(let x=-3.5;x<=3.5;x+=.7)for(let y=-3.5;y<=3.5;y+=.7){const p=M.evaluate(x,y,config),length=Math.hypot(...p.score);if(length>.03){const pt=xy([x,y]),len=9+Math.min(6,Math.log1p(length));arrow(ctx,[pt[0]-p.score[0]/length*len*.4,pt[1]+p.score[1]/length*len*.4],[pt[0]+p.score[0]/length*len*.6,pt[1]-p.score[1]/length*len*.6],'rgba(65,110,144,.54)',.8);}}
+      config.centers.forEach(p=>circle(ctx,...xy(p),3.2,BLUE,BG));ctx.restore();
+      for(const x of [-4,0,4]){const p=xy([x,-LIMIT]);text(ctx,String(x),p[0],p[1]+17,MUTED,10,'center');}for(const y of [-4,0,4]){const p=xy([-LIMIT,y]);text(ctx,String(y),p[0]-9,p[1]+4,MUTED,10,'right');}
+      text(ctx,'x₁',left+size,top+size+32,MUTED,11,'right');text(ctx,'x₂',left-20,top+5,MUTED,11);ctx.strokeStyle='#d7dfe3';ctx.lineWidth=1;ctx.strokeRect(left,top,size,size);
+      const image=document.createElement('canvas');image.width=canvas.width;image.height=canvas.height;image.getContext('2d').drawImage(canvas,0,0);contourCache={key,image};
+    }
+    if(state.stage===3){ctx.save();ctx.beginPath();ctx.rect(left,top,size,size);ctx.clip();
+      for(const t of trajectories){const last=Math.min(state.iteration,t.points.length-1);for(let i=1;i<=last;i++){const before=t.points[i-1],after=t.points[i];if(before.out)break;const segment=t.segments[i-1];if(segment)line(ctx,segment.map(p=>xy(p.point)),after.delta<-1e-9?'rgba(199,120,73,.92)':'rgba(199,120,73,.62)',1.2);if(after.out)break;}const start=xy(t.start);circle(ctx,...start,2.3,BG,ORANGE+'99');const q=t.points[last];if(!q.out)circle(ctx,...xy(q.point),3,ORANGE,BG);}
+      config.centers.forEach(p=>circle(ctx,...xy(p),3.2,BLUE,BG));ctx.restore();
+    }
+  }
+  function updateMetrics() {
+    let downhill=0,outside=0,gains=[];for(const t of trajectories){const last=Math.min(state.iteration,t.points.length-1),q=t.points[last];for(let i=1;i<=last;i++)if(t.points[i].delta<-1e-8)downhill++;if(q.out||Math.abs(q.point[0])>LIMIT||Math.abs(q.point[1])>LIMIT)outside++;if(Number.isFinite(q.lp))gains.push(q.lp-t.points[0].lp);}
+    gains.sort((a,b)=>a-b);const median=gains.length?gains[Math.floor(gains.length/2)]:NaN;
+    $('start-count').textContent=trajectories.length;$('downhill-count').textContent=downhill;$('outside-count').textContent=outside;$('density-gain').textContent=format(median);
+    $('downhill-count').classList.toggle('warning',downhill>0);$('outside-count').classList.toggle('warning',outside>0);
+    if(state.stage===0){const exponent=state.d-2;$('reading-line').innerHTML=exponent===0?'At <strong>d = 2</strong>, doubling σ multiplies shell volume and weighted mass by four: their scaling balances. Each Gaussian still has its highest point density at the center.':'Double the scale: <strong>2<sup>'+state.d+'</sup> times the shell volume</strong>, but only four times the weighted mass. The effective mean shell-density ratio is 2<sup>−'+exponent+'</sup>.';}
+    else if(state.stage===1){const stab=M.singleCenterStability(config);$('reading-line').innerHTML='One center, one summit. Near the center, ordinary Euler ascent is locally stable for <strong>η &lt; '+format(stab.localRawEulerLimit,3)+'</strong> with these scales. This limit changes with the terrain.';}
+    else if(state.stage===2){$('reading-line').innerHTML='The score combines all center–scale contributions. Overlap allows <strong>several nearby centers</strong> to influence a single direction.';}
+    else if(state.rule==='normalized'&&state.eta>=2){$('reading-line').innerHTML='<strong>η ≥ 2 is outside the guaranteed ascent range</strong> of the normalized update. Density may decrease or trajectories may oscillate or escape.';}
+    else if(downhill){$('reading-line').innerHTML='The step can outrun the slope. <strong>'+downhill+' density-decreasing updates</strong> have occurred by this iteration. Reduce η or try the normalized update.';}
+    else{$('reading-line').innerHTML=state.rule==='normalized'?'The normalized update follows a weighted average of centers. <strong>0 &lt; η &lt; 2</strong> is an ascent range for this exact mixture.':'The landscape is fixed. Randomness enters through the initial locations; <strong>the displayed updates are deterministic</strong>.';}
+    const single=M.prepare({d:state.d,sigmaMin:state.sigmaMin,sigmaMax:state.sigmaMax,nScales:N_SCALES,centers:[[0,0]]}),stab=M.singleCenterStability(single);$('stability-note').textContent='For the single-center mixture at these settings, the exact local raw-Euler limit at the summit is η < '+format(stab.localRawEulerLimit,4)+'. It is a local result, not a global step-size guarantee for the multi-center landscape.';
+  }
+  function renderOnly(playbackOnly=false) { syncControls();if(state.stage===0){drawShells();drawProfiles();}else{drawSurface();drawContour();if(!playbackOnly)drawFarField();}updateMetrics();setTimeout(reportHeight,0); }
+  function rebuild() { config=chooseConfig();buildFarField();if(state.stage!==0){buildGrids();computeTrajectories();}renderOnly(); }
+  function scheduleRebuild() { if(pending)return;pending=true;$('play-button').disabled=true;$('playback-status').textContent='Updating the terrain and trajectories…';setTimeout(()=>{pending=false;rebuild();},0); }
+  function stop() { playing=false;if(playbackTimer!==null){clearTimeout(playbackTimer);playbackTimer=null;}$('play-button').textContent='Play';$('play-button').setAttribute('aria-pressed','false'); }
+  function setParameters(patch) {
+    if (patch.mode) patch={...patch,rule:patch.mode};
+    stop();state={...state,...patch};state.d=Math.max(2,Math.min(128,Math.round(state.d)));state.sigmaMin=Math.max(.12,Math.min(1,state.sigmaMin));state.sigmaMax=Math.max(.8,Math.min(2.5,state.sigmaMax));if(state.sigmaMin>state.sigmaMax)state.sigmaMax=state.sigmaMin;const [a,b]=etaRange();state.eta=Math.max(a,Math.min(b,state.eta));state.iteration=0;syncControls();scheduleRebuild();
+  }
+  function setStage(index) { stop();state.stage=Math.max(0,Math.min(3,Math.round(index)));state.iteration=0;syncControls();scheduleRebuild(); }
+  function setIteration(n) { state.iteration=Math.max(0,Math.min(playbackEndIteration,Math.round(n)));renderOnly(true); }
+  document.querySelectorAll('[data-stage]').forEach(el=>el.addEventListener('click',()=>setStage(+el.dataset.stage)));
+  document.querySelectorAll('[data-height]').forEach(el=>el.addEventListener('click',()=>{state.height=el.dataset.height;renderOnly();}));
+  $('dimension').addEventListener('input',e=>setParameters({d:+e.target.value}));
+  $('sigma-min').addEventListener('input',e=>setParameters({sigmaMin:+e.target.value}));
+  $('sigma-max').addEventListener('input',e=>{const sigmaMax=+e.target.value;setParameters({sigmaMax,sigmaMin:Math.min(state.sigmaMin,sigmaMax)});});
+  $('step-size').addEventListener('input',e=>setParameters({eta:sliderToEta(+e.target.value)}));
+  $('gradient-rule').addEventListener('change',e=>setParameters({rule:e.target.value,eta:e.target.value==='raw'?.03:.2}));
+  $('ascent-centers').addEventListener('change',e=>setParameters({target:e.target.value}));
+  $('iteration').addEventListener('input',e=>{stop();setIteration(+e.target.value);});
+  $('step-button').addEventListener('click',()=>{stop();setIteration(state.iteration>=playbackEndIteration?0:state.iteration+1);});
+  $('restart-button').addEventListener('click',()=>{stop();setIteration(0);});
+  $('play-button').addEventListener('click',()=>{if(playing){stop();return;}if(pending)return;if(state.iteration>=playbackEndIteration)state.iteration=0;playing=true;playbackFrom=state.iteration;playbackStarted=performance.now();playbackFrames=[playbackFrom,...playbackIterations.filter(n=>n>playbackFrom)];if(playbackFrames[1]!==playbackFrom+1)playbackFrames.splice(1,0,playbackFrom+1);playbackDuration=Math.min(6000,Math.max(1800,(playbackFrames.length-1)*85));setIteration(Math.min(playbackEndIteration,state.iteration+1));if(state.iteration>=playbackEndIteration){stop();return;}playbackTimer=setTimeout(animate,33);});
+  $('reset-button').addEventListener('click',()=>{extraStarts=[];yaw=.72;state={...defaults};setParameters({});});
+  document.querySelectorAll('[data-preset]').forEach(el=>el.addEventListener('click',()=>{extraStarts=[];if(el.dataset.preset==='thin'){setParameters({stage:0,d:128,sigmaMin:.32,sigmaMax:1.35,rule:'raw',eta:.03});}else if(el.dataset.preset==='overlap'){setParameters({stage:2,d:2,sigmaMin:.55,sigmaMax:1.5,rule:'raw',eta:.03});}else if(el.dataset.preset==='broad'){setParameters({stage:1,d:16,sigmaMin:.32,sigmaMax:2.5,rule:'raw',eta:.03,height:'log'});}else{setParameters({stage:3,d:16,sigmaMin:.18,sigmaMax:1.35,rule:'raw',eta:.12,target:'single'});state.iteration=12;}}));
+  let drag=null;
+  $('surface-canvas').addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw,pitch};e.target.setPointerCapture(e.pointerId);});
+  $('surface-canvas').addEventListener('pointermove',e=>{if(!drag)return;yaw=drag.yaw+(e.clientX-drag.x)*.008;pitch=Math.max(.22,Math.min(.75,drag.pitch+(e.clientY-drag.y)*.002));drawSurface();});
+  $('surface-canvas').addEventListener('pointerup',()=>drag=null);
+  $('surface-canvas').addEventListener('pointercancel',()=>drag=null);
+  $('surface-canvas').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();yaw+=e.key==='ArrowLeft'?-.12:.12;drawSurface();}});
+  $('contour-canvas').addEventListener('click',e=>{if(state.stage!==3||extraStarts.length>=12)return;const rect=e.currentTarget.getBoundingClientRect(),{size,left,top}=contourTransform(rect.width,rect.height),x=e.clientX-rect.left,y=e.clientY-rect.top;if(x<left||x>left+size||y<top||y>top+size)return;extraStarts.push([(x-left)/size*2*LIMIT-LIMIT,LIMIT-(y-top)/size*2*LIMIT]);stop();state.iteration=0;computeTrajectories();renderOnly();});
+  const resize=new ResizeObserver(()=>{if(resizeTimer!==null)clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{resizeTimer=null;if(config)renderOnly();},0);});canvases.forEach(c=>resize.observe(c));
+  function animate() { playbackTimer=null;if(!playing||state.stage!==3)return;const elapsed=Math.max(0,performance.now()-playbackStarted),fraction=Math.min(1,elapsed/Math.max(1,playbackDuration)),next=playbackFrames[Math.min(playbackFrames.length-1,1+Math.floor((playbackFrames.length-1)*fraction))];if(next!==state.iteration)setIteration(next);if(fraction>=1||state.iteration>=playbackEndIteration){stop();return;}playbackTimer=setTimeout(animate,33); }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.landscapeDemo={getState:()=>({...state,nScales:N_SCALES,mode:state.rule,pending,playing,playbackEndIteration,meaningfulFrameCount:playbackIterations.length,playbackDurationMs:playbackDuration,playbackIterations:playbackIterations.slice(),stationarityTolerance:POSITION_TOLERANCE*Math.max(1,state.sigmaMin),starts:baseStarts(),trajectoryCount:trajectories.length,gridMaximum:surface?surface.max:null,gridMinimum:surface?surface.min:null,displayedLogRange:surface?surface.range:null,farField:farField?{radius:farField.radius,maxRadius:farField.maxRadius,baselineSigmaMax:farField.baselineSigmaMax,currentSigmaMax:farField.currentSigmaMax,nScales:farField.nScales,current:{...farField.current},reference:{...farField.reference},tailLift:farField.tailLift}:null,trajectories:trajectories.map(t=>({start:t.start,status:t.status,points:t.points.map(p=>({point:p.point.slice(),logDensity:p.lp,delta:p.delta,out:p.out,residual:p.residual,scoreResidual:p.scoreResidual}))}))}),setParameters,setStage,setIteration,reset:()=>{$('reset-button').click();}};
+  rebuild();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Follow one continuous guided sampling run: scheduled noise versus a noise state selected by position.">
+<title>Scheduled Noise and State-Adaptive Guided Sampling</title><style>
+:root{color-scheme:light;--bg:#fbfaf7;--ink:#181a1b;--muted:#3d4348;--blue:#416e90;--orange:#c77849;--rule:#d9e0e2;--font:Georgia,'Times New Roman',serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--font)}button,input{font:inherit}button{font-family:'Segoe UI',Arial,sans-serif;cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--orange);outline-offset:4px}a{color:var(--blue);text-underline-offset:4px}.page-header{max-width:1280px;margin:auto;padding:24px 32px 0;display:flex;justify-content:space-between;gap:20px;font:12px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.page-header a{font-size:14px;text-decoration:none}main{max-width:1240px;margin:54px auto 55px;padding:0 32px}.opening{max-width:900px}.eyebrow{font:12px/1.5 'Segoe UI',Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}h1{font:500 clamp(39px,5vw,62px)/1.12 var(--font);letter-spacing:-.043em;margin:0 0 24px}.dek{font-size:21px;line-height:1.6;color:#3d4348;margin:0 0 28px;max-width:840px}.setup{max-width:1030px;margin:0 0 25px;font-size:17px}.formula{font-family:'Cambria Math',Georgia,serif}.controls{display:grid;grid-template-columns:1fr 1fr;gap:42px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:22px 0 16px;font:14px/1.5 'Segoe UI',Arial,sans-serif}.controls label>span:first-child{display:flex;gap:4px;align-items:baseline;margin-bottom:13px}.controls output{font-size:17px;font-weight:600;color:var(--blue);margin-left:auto;font-variant-numeric:tabular-nums}.controls input{width:100%;display:block;margin:0;accent-color:var(--blue);cursor:pointer}.range-ends{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:7px}.preset-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin:18px 0 28px;font:14px/1.4 'Segoe UI',Arial,sans-serif;color:var(--muted)}.preset-row button{font-size:14px;border:0;border-bottom:1px solid #c2d0d9;padding:3px 0;background:none;color:var(--blue)}.main-scene{display:grid;grid-template-columns:1fr 1fr;gap:35px}.plot-panel{min-width:0}.plot-heading{display:flex;justify-content:space-between;align-items:baseline;gap:14px;min-height:52px}.plot-heading h2{font:500 19px/1.4 'Segoe UI',Arial,sans-serif;margin:0}.plot-heading>span{font:12px/1.45 'Segoe UI',Arial,sans-serif;color:var(--muted)}canvas{display:block;width:100%;height:390px}.plot-note{font:13px/1.65 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:10px 0 0}.legend,.spectrum-legend{display:flex;flex-wrap:wrap;gap:13px 23px;font:13px/1.4 'Segoe UI',Arial,sans-serif;color:#3d4348;margin:19px 0 0}.legend span,.spectrum-legend span{display:flex;align-items:center;gap:8px}.dot{height:7px;width:7px;border-radius:50%;display:inline-block;background:var(--orange)}.blue{background:var(--blue)}.orange{background:var(--orange)}.gray{background:#87949d}.line{width:19px;height:2px;display:inline-block}.cross{width:10px;height:10px;display:inline-block;background:linear-gradient(45deg,transparent 43%,#71808a 44%,#71808a 56%,transparent 57%),linear-gradient(-45deg,transparent 43%,#71808a 44%,#71808a 56%,transparent 57%)}.geometry-note{font:13px/1.65 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:15px 0 23px;max-width:1070px}.playback{border-top:1px solid var(--rule);padding-top:18px;font:14px/1.5 'Segoe UI',Arial,sans-serif}.transport{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.transport button{background:none;border:1px solid var(--rule);border-radius:4px;padding:7px 13px;font-size:14px;color:var(--ink)}.transport #play-button{color:white;background:var(--blue);border-color:var(--blue);min-width:120px}.transport>span{margin-left:auto;color:var(--muted);font-size:13px}.playback label{display:flex;gap:14px;align-items:center;margin:17px 0 0;font-size:13px;color:var(--muted)}.playback input{flex:1;min-width:0;accent-color:var(--blue)}.playback p{font-size:12px;color:var(--muted);margin:9px 0 0}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:25px;margin:27px 0 18px;font:13px/1.5 'Segoe UI',Arial,sans-serif}.metrics>div{display:flex;flex-direction:column;gap:7px}.metrics span{color:var(--muted)}.metrics strong{font-size:25px;line-height:1.2;font-weight:500;font-variant-numeric:tabular-nums;color:var(--blue)}.main-reading{font-size:19px;line-height:1.65;margin:20px 0 31px;color:#3d4348}.main-reading strong{font-weight:500;color:var(--orange)}.spectrum-panel{border-top:1px solid var(--rule);padding-top:23px}.spectrum-panel canvas{height:240px}.spectrum-panel .plot-heading{min-height:36px}.spectrum-legend{margin-top:9px}.coverage-reading{font:14px/1.7 'Segoe UI',Arial,sans-serif;color:#3d4348;margin:18px 0}.scope-note{font:14px/1.75 'Segoe UI',Arial,sans-serif;color:#3d4348;margin:23px 0}.scope-note strong{font-weight:600;color:#3d4348}.technical-note{border-top:1px solid var(--rule);padding-top:18px;font:14px/1.8 'Segoe UI',Arial,sans-serif;color:#3d4348}.technical-note summary{cursor:pointer;color:var(--blue)}.technical-note>div{padding-top:15px;max-width:1030px}.technical-note p{margin:0 0 16px}.technical-note .formula{font-size:16px;color:var(--ink)}.figure-footer{border-top:1px solid var(--rule);margin-top:26px;padding-top:18px;display:flex;justify-content:space-between;gap:20px;align-items:center;font:12px/1.6 'Segoe UI',Arial,sans-serif;color:var(--muted)}.figure-footer button{border:0;background:none;color:var(--blue);font-size:13px;padding:0}body[data-embedded=true] .page-header{display:none}body[data-embedded=true] main{margin:28px auto 20px;padding:0 22px}body[data-embedded=true] .eyebrow{display:none}body[data-embedded=true] h1{font-size:43px}body[data-embedded=true] .dek{font-size:18px;margin-bottom:22px}
+@media(max-width:900px){main{padding:0 25px}.main-scene{gap:24px}.plot-heading{display:block;min-height:65px}.plot-heading>span{display:block;margin-top:5px}canvas{height:340px}.metrics{gap:17px}.metrics span{font-size:12px}.spectrum-panel .plot-heading{min-height:58px}}
+@media(max-width:650px){body{font-size:16px}.page-header{padding:20px 20px 0;font-size:11px}.page-header>span{max-width:170px;text-align:right}.page-header a{font-size:13px}main{margin:35px auto 40px;padding:0 20px}h1{font-size:42px}.dek{font-size:18px}.setup{font-size:16px}.controls{gap:25px}.controls label>span:first-child{font-size:14px;flex-wrap:wrap}.controls output{font-size:16px}.range-ends{font-size:11px}.preset-row{gap:13px 19px}.preset-row>span{display:none}.preset-row button{font-size:14px}.main-scene{grid-template-columns:1fr;gap:27px}.plot-heading{min-height:56px}.plot-heading h2{font-size:18px}.plot-heading>span{font-size:12px}canvas{height:350px}.plot-note,.geometry-note{font-size:12px}.legend{font-size:12px;gap:12px 17px}.transport>span{margin-left:0;width:100%}.transport button{font-size:13px;padding:7px 10px}.playback label{font-size:12px;gap:9px}.metrics{grid-template-columns:1fr 1fr;gap:21px 17px}.metrics span{font-size:12px}.metrics strong{font-size:23px}.main-reading{font-size:18px}.spectrum-panel canvas{height:250px}.spectrum-legend{font-size:12px;gap:13px 19px}.scope-note,.coverage-reading,.technical-note{font-size:13px}.technical-note .formula{font-size:15px}.figure-footer{font-size:11px}.figure-footer button{font-size:12px}}
+
+.metric-note{font:13px/1.7 "Segoe UI",Arial,sans-serif;color:var(--muted);margin:0 0 17px;max-width:1020px}
+.playback{margin:0 0 26px;border-bottom:1px solid var(--rule);padding-bottom:18px}
+.green{background:#397653}.red{background:#ac5951}.swatch{display:inline-block;width:16px;height:12px;border:1px solid transparent}.swatch.green{background:#dfecdf;border-color:#98bea1}.swatch.red{background:#f1dfdc;border-color:#d6aaa2}.transport #continue-button{background:#397653;border-color:#397653;color:#fff}.transport #play-button{background:none;color:var(--blue);border-color:#a8bdca}.next-reading{font:14px/1.65 'Segoe UI',Arial,sans-serif;margin:13px 0 10px;padding:11px 13px;min-height:90px;border-left:3px solid transparent}.next-reading.covered{background:#edf4ed;border-color:#6f9e7c;color:#326443}.next-reading.uncertain{background:#f8eeeb;border-color:#c68378;color:#944d43}.continuation-control input{accent-color:#397653}.playback .transport>span{font-size:12px}.playback label{margin-top:12px}.spectrum-legend .line.orange{background:#397653}
+@media(max-width:650px){.next-reading{font-size:13px;min-height:0}.transport{gap:8px}.transport>span{margin-top:4px}.playback label{gap:8px;font-size:11px}.playback .transport button{font-size:12px;padding:8px 9px}.plot-note{font-size:12px}.main-reading{font-size:17px}}
+
+.regime-reading{font:15px/1.65 'Segoe UI',Arial,sans-serif;color:#3d4348;border-left:3px solid #9cafb6;background:#f0f3f2;margin:-9px 0 25px;padding:12px 15px}.preset-row button[aria-pressed=true]{color:#3d4348;font-weight:600;border-bottom-color:#397653}.legend .manifold-gray{height:4px;background:#7d898b}.legend .manifold-green{height:4px;background:#397653}.plot-panel canvas{height:415px}.next-reading{min-height:83px}.metrics span{max-width:210px}.status-line{font-weight:600}.scope-note{max-width:1060px}@media(max-width:650px){.plot-panel canvas{height:365px}.regime-reading{font-size:13px;margin-top:-4px;padding:11px 12px}.metrics{column-gap:18px}.metrics span{font-size:12px}.next-reading{min-height:0}}
+.next-reading.supported{background:#eef2f5;border-color:#91acbc;color:#3d4348}
+.response-reading{font:13px/1.65 'Segoe UI',Arial,sans-serif;color:#3d4348;margin:9px 0 0}.response-reading:empty{display:none}
+.playback-speed{display:flex;align-items:center;gap:5px;margin-left:12px;font:13px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.playback-speed>span{margin-right:4px}.transport .playback-speed button{font-size:13px;padding:5px 8px;min-width:40px}.playback-speed button[aria-pressed=true]{background:#edf4ed;border-color:#7ca589;color:#326443}.playback-speed button:focus-visible{outline:3px solid var(--orange);outline-offset:3px}@media(max-width:650px){.playback-speed{margin:3px 0 0;width:100%}.transport .playback-speed button{padding:5px 10px}.transport>span{margin-top:2px}}
+.run-summary{display:flex;gap:12px 28px;flex-wrap:wrap;margin:13px 0 21px;font:14px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.run-summary strong{font-weight:600;margin-left:6px;color:var(--ink);font-variant-numeric:tabular-nums}.transport #play-button{background:#397653;border-color:#397653;color:#fff;min-width:120px}.timeline-panel{border-top:1px solid var(--rule);padding-top:23px}.timeline-panel canvas{height:210px}.timeline-panel .plot-heading{min-height:38px}.spectrum-legend .line.green{background:#397653}.technical-note{padding-bottom:18px}.technical-note .spectrum-panel{border:0;padding-top:0}.technical-note .spectrum-panel canvas{height:220px}.playback #sampling-progress{accent-color:#397653}
+@media(max-width:900px){.timeline-panel .plot-heading{min-height:59px}}@media(max-width:650px){.run-summary{font-size:13px;gap:8px 20px}.range-ends{gap:10px}.timeline-panel canvas{height:210px}.transport #play-button{font-size:13px}.playback label{font-size:12px}.technical-note .spectrum-panel canvas{height:230px}}
+
+</style>
+</head><body>
+<header class="page-header"><a href="index.html#11-control-becomes-a-change-to-the-objective">Back to the essay</a><span>Gaussian denoising · guidance and geometry</span></header>
+<main>
+<div class="opening"><p class="eyebrow">One run, two ways to query the score</p><h1>The schedule moves on. The state may take another route.</h1><p class="dek">Both paths start from the same noisy point and keep guidance in every update. The noise-conditioned score receives a label that decreases throughout the run. The noise-unconditioned score selects its implicit noise state from the position it actually reaches.</p></div>
+<p class="setup">The gray and green arcs belong to the <strong>same connected manifold</strong>. The green arc satisfies the constraint; the remaining gray arc is also valid data. Stronger guidance pulls toward the green region. Larger steps make larger updates and use fewer sampling steps over the same run. Adjust either slider while paused to compare the same stage of sampling.</p>
+<div class="controls" aria-label="Guidance parameters">
+<label for="guidance-strength"><span>Guidance strength <i>λ</i><output id="guidance-value">9.00</output></span><input id="guidance-strength" type="range" min="0" max="10" step="0.05" value="9"><span class="range-ends"><span>0 · no constraint preference</span><span>10 · stronger guidance</span></span></label>
+<label for="step-multiplier"><span>Step multiplier <i>α</i><output id="step-value">1.00</output></span><input id="step-multiplier" type="range" min="0.25" max="4" step="0.05" value="1"><span class="range-ends"><span>More, smaller updates</span><span>Fewer, larger updates</span></span></label>
+</div>
+<div class="run-summary"><span>Sampling updates <strong id="step-count">—</strong></span><span>Step size <i>η</i> <strong id="step-size-value">—</strong></span><span>Same guidance coefficient <strong id="lambda-summary">—</strong></span></div>
+<div class="preset-row"><span>Compare</span><button type="button" data-preset="baseline">No guidance</button><button type="button" data-preset="mild">Gentle guidance</button><button type="button" data-preset="strong">Strong guidance</button><button type="button" data-preset="coarse">Coarse steps</button></div>
+<p id="regime-reading" class="regime-reading"></p>
+<div class="playback"><div class="transport"><button type="button" id="play-button" aria-pressed="false">Play sampling</button><button type="button" id="step-button">One update</button><button type="button" id="restart-button">Restart</button><div class="playback-speed" role="group" aria-label="Playback speed"><span>Playback</span><button type="button" data-playback-rate="0.5" aria-pressed="false">0.5×</button><button type="button" data-playback-rate="1" aria-pressed="true">1×</button><button type="button" data-playback-rate="2" aria-pressed="false">2×</button></div><span>Sampling step <output id="sampling-value">0</output> / <span id="sampling-max">—</span></span></div><label for="sampling-progress"><span>Start</span><input id="sampling-progress" type="range" min="0" max="80" step="1" value="0"><span>End</span></label><p id="playback-reading">One sampling timeline. Every displayed waypoint is an actual update.</p></div>
+<div class="main-scene">
+<section class="plot-panel"><div class="plot-heading"><h2>Noise-conditioned path</h2><span>The scheduled σ keeps decreasing</span></div><canvas id="conditional-canvas" role="img" aria-label="Continuous sampling with a scheduled noise label decreasing to the minimum level"></canvas><p id="conditional-next-reading" class="next-reading"></p><p class="plot-note">The blue training band shrinks with the prescribed schedule. A guidance-driven displacement can leave it before the next score query.</p><p id="mismatch-summary" class="response-reading"></p></section>
+<section class="plot-panel"><div class="plot-heading"><h2>Noise-unconditioned path</h2><span>Implicit σ follows the actual position</span></div><canvas id="unconditioned-canvas" role="img" aria-label="Continuous guided sampling using a noise state selected from the current position"></canvas><p id="unconditioned-next-reading" class="next-reading"></p><p class="plot-note">The selected band responds to the point’s position. The same guidance term continues steering toward the green region.</p></section>
+</div>
+<div class="legend"><span><i class="line manifold-gray"></i>Remaining valid manifold</span><span><i class="line manifold-green"></i>Constraint-satisfying region</span><span><i class="dot blue"></i>Shared initial point</span><span><i class="line blue"></i>Scheduled-label path</span><span><i class="line red"></i>Illustrative mismatch failure</span><span><i class="line green"></i>State-adaptive path</span><span><i class="line orange"></i>Guidance displacement (length capped)</span></div>
+<p class="geometry-note">The dots mark actual sampling updates: coarser steps produce fewer dots and larger jumps. Motion between dots only helps playback; it is not another solver step. Blue gradually turns red as the illustrative score error grows outside the scheduled training band. The band ratio is distance to the manifold divided by the scheduled band's half-width; a ratio above 1 marks an off-band state. Training bands are schematic.</p>
+<div class="metrics"><div><span>Current scheduled σ</span><strong id="assigned-scale">—</strong></div><div><span>Current implicit σ</span><strong id="effective-scale">—</strong></div><div><span>Scheduled path · distance to manifold</span><strong id="conditional-distance">—</strong></div><div><span>State-only path · distance to manifold</span><strong id="geometric-scale">—</strong></div></div>
+<p id="main-reading" class="main-reading" aria-live="polite"></p>
+<section class="timeline-panel"><div class="plot-heading"><h2>One clock, different noise states</h2><span id="timeline-caption">Scheduled versus state-selected noise</span></div><canvas id="noise-timeline" role="img" aria-label="Scheduled noise decreases to its minimum while implicit noise varies with sampled position"></canvas><div class="spectrum-legend"><span><i class="line blue"></i>Scheduled σ</span><span><i class="line green"></i>Implicit σ from position</span><span><i class="line gray"></i>σ min</span></div><p id="schedule-reading" class="plot-note">The blue schedule reaches σ min at the final update. No terminal noise value is imposed on the green curve.</p></section>
+<p id="coverage-reading" class="coverage-reading"></p>
+<p class="scope-note"><strong>What the illustration shows.</strong> Without guidance both constructions can return to the manifold. Gentle guidance can steer both into the constrained region. Stronger guidance or coarser updates can move a state away from its scheduled training band; the red portion illustrates possible accumulated learned-score error. The state-only score adapts to the current position while guidance continues. These are mechanism illustrations, not measured neural-network trajectories.</p>
+<details id="scale-details" class="technical-note"><summary>Which scales contribute at the current position?</summary><div><section class="spectrum-panel"><div class="plot-heading"><h2>The position selects relevant noise scales</h2><span id="spectrum-caption"></span></div><canvas id="scale-canvas" role="img" aria-label="Noise-scale contributions selected by the current state-only position"></canvas><div class="spectrum-legend"><span><i class="line blue"></i>Density shares</span><span><i class="line green"></i>Score shares</span><span><i class="line gray"></i>Scheduled label</span></div></section></div></details>
+<details class="technical-note"><summary>The sampling clocks</summary><div><p>Both paths use the same initial state, guidance coefficient λ, and update budget K over the same time interval. Increasing α reduces K and enlarges each time step. The guidance coefficient λ remains unchanged.</p><p>The noise-conditioned prior follows a probability-flow Euler step tied to the decrease in variance. Without guidance, its update is <span class="formula">Δx = ½(σ<sub>k</sub><sup>2</sup> − σ<sub>k+1</sub><sup>2</sup>) s(x<sub>k</sub>, σ<sub>k</sub>)</span>. Its motion and shrinking training band therefore advance on the same noise clock.</p><p>The state-only field uses position-dependent scaling and receives no scheduled noise label. Its implicit scale follows the current position; it need not wait for the blue schedule to reach its final value.</p><p>Guided updates retain both the prior and task gradient, with positive diagonal damping. Outside the scheduled training band, a smooth illustrative error field varies with the position and assigned label. It depicts possible learned-score error, not measured network behavior or an undefined analytic Gaussian score. Playback speed changes viewing time only.</p></div></details>
+<footer class="figure-footer"><span>One continuous run · scheduled versus implicit noise · continuing guidance</span><button type="button" id="reset-button">Reset the figure</button></footer>
+</main><script>
+/* Exact Gaussian-mixture mathematics for the interactive research essay.
+ * No dependencies; safe to load from file:// and in a browser worker.
+ *
+ * API (window.GaussianLandscapeMath, or require(...) in Node):
+ *   prepare({d=2,sigmaMin=.22,sigmaMax=1.3,nScales=32,centers=[[0,0]],sigmas?})
+ *     -> immutable cached configuration. Explicit sigmas override the schedule.
+ *   evaluate(x,y,prepared)
+ *     -> {logDensity,score:[sx,sy],beta,barycenter:[mx,my],
+ *         centerResponsibilities:[...],isFinite}
+ *   step([x,y],prepared,eta,mode='raw'|'normalized')
+ *     -> {point,before,after,deltaLogDensity,isFinite}
+ *   geometricScales(min,max,n), logGamma(z), radialMass(r,sigma,d),
+ *   logRadialMass(r,sigma,d), ambientRelative(r,sigma), shellSummary(sigma,d),
+ *   singleCenterStability(prepared), singleCenterRadialMass(r,prepared).
+ *
+ * The displayed x/y coordinates lie in an invariant two-dimensional slice:
+ * all centers and the other d-2 sample coordinates are zero off this plane.
+ * Evaluated height is the FULL d-dimensional ambient density on that slice,
+ * not a 2D marginal or a radial probability density. The exact target is
+ * p_MN=(M sum_i sigma_i^2)^-1 sum_j,i sigma_i^2 N_d(x;mu_j,sigma_i^2 I).
+ * No trajectory clipping or monotonicity correction is performed here.
+ */
+(function attach(root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.GaussianLandscapeMath = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function makeAPI() {
+  'use strict';
+  const LOG_TWO_PI = Math.log(2 * Math.PI);
+  const LANCZOS = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
+  ];
+
+  function finitePositive(value, name) {
+    if (!Number.isFinite(value) || value <= 0) throw new RangeError(name + ' must be finite and positive');
+    return value;
+  }
+
+  function dimension(value) {
+    if (!Number.isInteger(value) || value < 2) throw new RangeError('d must be an integer at least 2');
+    return value;
+  }
+
+  function logGamma(z) {
+    finitePositive(z, 'logGamma argument');
+    if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
+    z -= 1;
+    let x = LANCZOS[0];
+    for (let i = 1; i < LANCZOS.length; i++) x += LANCZOS[i] / (z + i);
+    const t = z + 7.5;
+    return 0.5 * LOG_TWO_PI + (z + 0.5) * Math.log(t) - t + Math.log(x);
+  }
+
+  function geometricScales(min, max, count) {
+    finitePositive(min, 'sigmaMin'); finitePositive(max, 'sigmaMax');
+    if (max < min) throw new RangeError('sigmaMax must be at least sigmaMin');
+    if (!Number.isInteger(count) || count < 1 || count > 4096) throw new RangeError('nScales must be an integer from 1 to 4096');
+    if (count === 1) return [min];
+    const width = Math.log(max / min);
+    const result = Array.from({length:count}, (_, i) => min * Math.exp(width * i / (count - 1)));
+    result[0] = min; result[result.length - 1] = max;
+    return result;
+  }
+
+  function prepare(input) {
+    input = input || {};
+    const d = dimension(input.d === undefined ? 2 : input.d);
+    const sourceCenters = input.centers === undefined ? [[0, 0]] : input.centers;
+    if (!Array.isArray(sourceCenters) || !sourceCenters.length) throw new RangeError('at least one center is required');
+    const centers = sourceCenters.map((c) => {
+      const x = Array.isArray(c) ? c[0] : c.x;
+      const y = Array.isArray(c) ? c[1] : c.y;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) throw new RangeError('each center needs finite x and y coordinates');
+      return Object.freeze([x, y]);
+    });
+    const sigmas = input.sigmas === undefined
+      ? geometricScales(input.sigmaMin === undefined ? 0.22 : input.sigmaMin,
+          input.sigmaMax === undefined ? 1.3 : input.sigmaMax,
+          input.nScales === undefined ? 32 : input.nScales)
+      : Array.from(input.sigmas);
+    if (!sigmas.length) throw new RangeError('at least one noise scale is required');
+    sigmas.forEach(s => finitePositive(s, 'sigma'));
+    const sumVariance = sigmas.reduce((sum, s) => sum + s * s, 0);
+    if (!Number.isFinite(sumVariance)) throw new RangeError('noise variances overflow');
+    const invVariances = sigmas.map(s => 1 / (s * s));
+    if (invVariances.some(v => !Number.isFinite(v))) throw new RangeError('noise precision overflows');
+    return Object.freeze({
+      d,
+      centers: Object.freeze(centers),
+      sigmas: Object.freeze(sigmas),
+      sigmaMin: Math.min.apply(null, sigmas),
+      sigmaMax: Math.max.apply(null, sigmas),
+      nScales: sigmas.length,
+      invVariances: Object.freeze(invVariances),
+      logCoefficients: Object.freeze(sigmas.map(s => (2 - d) * Math.log(s))),
+      logNormalizer: Math.log(centers.length * sumVariance) + 0.5 * d * LOG_TWO_PI,
+      sumVariance,
+      _gaussianLandscapePrepared: true
+    });
+  }
+
+  function invalidEvaluation(count) {
+    return {logDensity:-Infinity, score:[NaN,NaN], beta:NaN,
+      barycenter:[NaN,NaN], centerResponsibilities:Array(count).fill(0), isFinite:false};
+  }
+
+  function evaluate(x, y, config) {
+    if (!config || !config._gaussianLandscapePrepared) throw new TypeError('evaluate requires a prepare(...) configuration');
+    const centers = config.centers, n = centers.length;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return invalidEvaluation(n);
+    const distances = new Float64Array(n);
+    let maximum = -Infinity;
+    for (let j = 0; j < n; j++) {
+      const dx = x - centers[j][0], dy = y - centers[j][1];
+      const r2 = dx * dx + dy * dy;
+      distances[j] = r2;
+      for (let i = 0; i < config.nScales; i++) {
+        const term = config.logCoefficients[i] - 0.5 * r2 * config.invVariances[i];
+        if (term > maximum) maximum = term;
+      }
+    }
+    if (!Number.isFinite(maximum)) return invalidEvaluation(n);
+    let sum = 0, precisionSum = 0, baryX = 0, baryY = 0;
+    const centerResponsibilities = new Array(n).fill(0);
+    for (let j = 0; j < n; j++) {
+      let centerMass = 0, centerPrecision = 0;
+      for (let i = 0; i < config.nScales; i++) {
+        const term = config.logCoefficients[i] - 0.5 * distances[j] * config.invVariances[i];
+        const relativeWeight = Math.exp(term - maximum);
+        centerMass += relativeWeight;
+        centerPrecision += relativeWeight * config.invVariances[i];
+      }
+      centerResponsibilities[j] = centerMass;
+      sum += centerMass;
+      precisionSum += centerPrecision;
+      baryX += centerPrecision * centers[j][0];
+      baryY += centerPrecision * centers[j][1];
+    }
+    const beta = precisionSum / sum;
+    baryX /= precisionSum; baryY /= precisionSum;
+    const score = [beta * (baryX - x), beta * (baryY - y)];
+    const logDensity = maximum + Math.log(sum) - config.logNormalizer;
+    for (let j = 0; j < n; j++) centerResponsibilities[j] /= sum;
+    const isFinite = Number.isFinite(logDensity) && Number.isFinite(beta)
+      && Number.isFinite(baryX) && Number.isFinite(baryY)
+      && Number.isFinite(score[0]) && Number.isFinite(score[1]);
+    return {logDensity, score, beta, barycenter:[baryX,baryY], centerResponsibilities, isFinite};
+  }
+
+  function step(point, config, eta, mode) {
+    if (!Number.isFinite(eta) || eta < 0) throw new RangeError('eta must be finite and nonnegative');
+    mode = mode || 'raw';
+    if (mode !== 'raw' && mode !== 'normalized') throw new RangeError('mode must be raw or normalized');
+    const before = evaluate(point[0], point[1], config);
+    const direction = mode === 'normalized'
+      ? [before.barycenter[0] - point[0], before.barycenter[1] - point[1]]
+      : before.score;
+    const next = [point[0] + eta * direction[0], point[1] + eta * direction[1]];
+    const after = evaluate(next[0], next[1], config);
+    const deltaLogDensity = after.logDensity - before.logDensity;
+    return {point:next, before, after, deltaLogDensity,
+      isFinite:before.isFinite && after.isFinite && Number.isFinite(deltaLogDensity)};
+  }
+
+  function logRadialMass(r, sigma, d) {
+    finitePositive(sigma, 'sigma'); dimension(d);
+    if (!Number.isFinite(r) || r < 0) return -Infinity;
+    if (r === 0) return -Infinity; // d>=2: the radial PDF is zero at the origin.
+    return (d - 1) * Math.log(r) - 0.5 * (r / sigma) * (r / sigma)
+      - (0.5 * d - 1) * Math.log(2) - logGamma(0.5 * d) - d * Math.log(sigma);
+  }
+
+  function radialMass(r, sigma, d) {
+    return Math.exp(logRadialMass(r, sigma, d));
+  }
+
+  function ambientRelative(r, sigma) {
+    finitePositive(sigma, 'sigma');
+    if (!Number.isFinite(r) || r < 0) return 0;
+    return Math.exp(-0.5 * (r / sigma) * (r / sigma));
+  }
+
+  function shellSummary(sigma, d) {
+    finitePositive(sigma, 'sigma'); dimension(d);
+    const mean = sigma * Math.sqrt(2) * Math.exp(logGamma(0.5 * (d + 1)) - logGamma(0.5 * d));
+    const variance = Math.max(0, d * sigma * sigma - mean * mean);
+    return {
+      d, sigma,
+      mode:sigma * Math.sqrt(d - 1), mean,
+      radiusApprox:sigma * Math.sqrt(d), standardDeviation:Math.sqrt(variance),
+      relativeWidth:Math.sqrt(variance) / mean,
+      log2VolumeDoubling:d, effectiveMassDoubling:4,
+      log2WeightedDensityDoubling:2 - d
+    };
+  }
+
+  function singleCenterStability(config) {
+    if (config.centers.length !== 1) throw new RangeError('the exact isotropic center threshold requires one center');
+    const center = config.centers[0], ev = evaluate(center[0], center[1], config);
+    return {betaAtCenter:ev.beta, localRawEulerLimit:2 / ev.beta,
+      conservativeRawEulerLimit:2 * config.sigmaMin * config.sigmaMin,
+      normalizedEulerLimit:2,
+      note:'Strict inequalities; the raw limit is local, at the single-center peak.'};
+  }
+
+  function singleCenterRadialMass(r, config) {
+    if (config.centers.length !== 1) throw new RangeError('radial symmetry requires one center');
+    let result = 0;
+    for (const sigma of config.sigmas) result += sigma * sigma * radialMass(r, sigma, config.d);
+    return result / config.sumVariance;
+  }
+
+  return Object.freeze({prepare, evaluate, step, geometricScales, logGamma,
+    logRadialMass, radialMass, ambientRelative, shellSummary,
+    singleCenterStability, singleCenterRadialMass});
+});
+
+</script><script>
+/* Guided generation on one connected manifold.
+ * The circle is split into a constraint-satisfying arc and remaining data.
+ * The fixed prior is an exact sigma^2-weighted Gaussian mixture around a
+ * dense circular reference in an invariant two-dimensional slice of R^8.
+ * Off-band score errors are conceptual, not measured neural-network errors.
+ */
+(function(root,factory){
+  const G=typeof module==='object'&&module.exports?require('../interactive/landscape-math.js'):root.GaussianLandscapeMath;
+  const api=factory(G);if(typeof module==='object'&&module.exports)module.exports=api;root.GuidanceMath=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(G){
+  'use strict';
+  if(!G)throw new Error('GaussianLandscapeMath must be loaded first');
+  const d=8,R=2,sigmaMin=.06,sigmaMax=2,nScales=32,baseSteps=80,totalTime=32;
+  const bandFactor=2.5,manifoldTolerance=2.5*sigmaMin,minX=.8,interiorX=1.3,guidanceGain=10,transverseDamping=.2;
+  const oldPoint=Object.freeze([-3,3.5]);
+  const centers=Object.freeze(Array.from({length:96},(_,i)=>Object.freeze([R*Math.cos(i*2*Math.PI/96),R*Math.sin(i*2*Math.PI/96)])));
+  const mixture=G.prepare({d,centers,sigmaMin,sigmaMax,nScales});
+  const softplus=z=>z>30?z:z< -30?Math.exp(z):Math.log1p(Math.exp(z));
+  const sigmoid=z=>z>=0?1/(1+Math.exp(-z)):Math.exp(z)/(1+Math.exp(z));
+  const norm=p=>Math.hypot(p[0],p[1]);
+  function validate(parameters){
+    const lambda=Number(parameters?.lambda??9),alpha=Number(parameters?.alpha??1);
+    if(!Number.isFinite(lambda)||lambda<0||lambda>10||!Number.isFinite(alpha)||alpha<.25||alpha>4)throw new RangeError('lambda must be in [0,10] and alpha in [.25,4]');
+    return{lambda,alpha};
+  }
+  function geometry(point){
+    const radius=norm(point),manifoldDistance=Math.abs(radius-R),onManifold=manifoldDistance<=manifoldTolerance+1e-10;
+    const constraintFeasible=point[0]>=minX;
+    return{radius,manifoldDistance,onManifold,constraintFeasible,inConstraintSide:constraintFeasible,
+      constraintSatisfied:onManifold&&constraintFeasible,inConstrainedManifold:onManifold&&constraintFeasible,
+      projection:radius>1e-12?point.map(v=>R*v/radius):[R,0]};
+  }
+  // A smooth one-sided penalty favors the interior of the highlighted arc.
+  // It specifies a region preference, not a point on the manifold.
+  function penalty(point){return .5*guidanceGain*softplus(interiorX-point[0])**2;}
+  function taskAt(point,lambda){const z=interiorX-point[0];return[lambda*guidanceGain*softplus(z)*sigmoid(z),0];}
+  function objective(point,lambda){return G.evaluate(...point,mixture).logDensity-lambda*penalty(point);}
+  function scaleWeights(point){
+    const sigmas=mixture.sigmas,logs=[];
+    for(const center of centers){const distance2=(point[0]-center[0])**2+(point[1]-center[1])**2;
+      for(const s of sigmas)logs.push((2-d)*Math.log(s)-distance2/(2*s*s));}
+    const mx=Math.max(...logs),raw=logs.map(v=>Math.exp(v-mx)),sum=raw.reduce((a,b)=>a+b,0),w=raw.map(v=>v/sum);
+    const beta=w.reduce((a,v,k)=>a+v/(sigmas[k%sigmas.length]**2),0),q=w.map((v,k)=>v/(sigmas[k%sigmas.length]**2*beta));
+    const driftWeights=sigmas.map((_,i)=>{let s=0;for(let j=0;j<centers.length;j++)s+=q[j*sigmas.length+i];return s;});
+    const densityWeights=sigmas.map((_,i)=>{let s=0;for(let j=0;j<centers.length;j++)s+=w[j*sigmas.length+i];return s;});
+    const dominantIndex=driftWeights.indexOf(Math.max(...driftWeights));
+    return{sigmas:sigmas.slice(),densityWeights,driftWeights,beta,effectiveSigma:1/Math.sqrt(beta),dominantSigma:sigmas[dominantIndex]};
+  }
+  function taskCurvature(point){const z=interiorX-point[0],s=sigmoid(z);return guidanceGain*(s*s+softplus(z)*s*(1-s));}
+  // Full lambda-curvature scaling would almost cancel the lambda in the
+  // task force. This positive, step-aware damping preserves visible force
+  // differences on fine steps and strengthens stabilization on coarse ones.
+  function guidanceDamping(lambda,h){return Math.sqrt(lambda*(1+lambda*h*h)/(1+h*h));}
+  // On the fixed landscape, a small task force should steer the approach
+  // before the steep near-manifold prior makes tangential motion slow.
+  // This positive numerical damping balances that approach continuously;
+  // it changes neither score nor task gradient and vanishes from the
+  // unguided update because taskScale is zero. Strong-guidance damping
+  // smoothly returns to the existing transverse coefficient.
+  function stateOnlyTransverseDamping(lambda){return transverseDamping+3.5*Math.exp(-((lambda/2)**2));}
+  function sample(point,k,kind,lambda,errorStrength,schedule,configs,h){
+    const scheduledSigma=schedule[k],config=kind==='conditional'?configs[k]:mixture;
+    const field=G.evaluate(...point,config),geo=geometry(point),weights=scaleWeights(point);
+    const availableSigma=kind==='conditional'?scheduledSigma:sigmaMax;
+    const gap=Math.max(0,geo.manifoldDistance/(bandFactor*availableSigma)-1);
+    // A C2 transition lets extrapolation error grow across the edge of the
+    // training band instead of switching the direction at one threshold.
+    const transition=Math.min(1,gap/.16);
+    const activation=errorStrength*transition**3*(10+transition*(-15+6*transition));
+    const unit=point.map(v=>v/Math.max(geo.radius,1e-12));
+    // Conceptual off-band extrapolation, not measured network error or
+    // sampling noise. Smooth spatial/label-dependent errors remain
+    // correlated while changing direction as the assigned label shrinks;
+    // they do not settle onto a second, apparently reliable circular flow.
+    // The radial envelope only keeps the drawing in view. This same field
+    // is available outside either description's training coverage, and the
+    // guidance term is still added separately at every update below.
+    const phase=Math.log(sigmaMax/availableSigma),x=point[0],y=point[1];
+    const angle=1.2*Math.exp(-(((phase-.18)/.22)**2))-2+4.3*phase+.45*Math.sin(3*phase)+.2*Math.sin(x)+4*x+.4*y;
+    const radial=.8*(4.4-geo.radius)+.35*Math.sin(4.3*phase+.2*y);
+    const forcing=[1.5*Math.cos(angle),1.5*Math.sin(angle)];
+    const wandering=unit.map((v,i)=>radial*v+forcing[i]);
+    const error=field.score.map((v,i)=>activation*(field.beta*wandering[i]-v));
+    const task=taskAt(point,lambda),direction=field.score.map((v,i)=>v+task[i]+error[i]);
+    // The conditioned prior follows the VE probability-flow clock rather
+    // than optimizing each broad-noise density to its (interior) mode.
+    // At lambda=0 its Euler displacement is exactly
+    // .5 * (sigma_k^2 - sigma_{k+1}^2) * score(x_k, sigma_k).
+    // The terminal derivative is only a finite, unused query record.
+    const noiseRatio=schedule[1]/schedule[0];
+    const nextSigma=k+1<schedule.length?schedule[k+1]:scheduledSigma*noiseRatio;
+    const noiseVarianceStep=.5*(scheduledSigma**2-nextSigma**2);
+    const mobility=kind==='conditional'?noiseVarianceStep/h:1/field.beta;
+    const inverseMobility=1/mobility;
+    // Both solvers retain the same score-plus-guidance form, with a positive
+    // diagonal damping that leaves vertical manifold return active.
+    const guidanceDampingScale=guidanceDamping(lambda,h),taskScale=guidanceDampingScale*taskCurvature(point);
+    const transverseDampingScale=kind==='unconditioned'?stateOnlyTransverseDamping(lambda):transverseDamping;
+    const normalizers=[inverseMobility+taskScale,inverseMobility+transverseDampingScale*taskScale];
+    const normalizer=normalizers[0],velocity=direction.map((v,i)=>v/normalizers[i]);
+    const selectedBand={inner:Math.max(0,R-bandFactor*weights.dominantSigma),outer:R+bandFactor*weights.dominantSigma,halfWidth:bandFactor*weights.dominantSigma,schematic:true};
+    return{point:point.slice(),iteration:k,time:k*h,...geo,scheduledSigma,assignedSigma:scheduledSigma,
+      prior:field.score.slice(),score:field.score.slice(),task,error,direction,velocity,normalizer,normalizers,mobility,inverseMobility,noiseVarianceStep,guidanceDampingScale,transverseDampingScale,beta:field.beta,
+      logDensity:field.logDensity,objective:objective(point,lambda),weights,dominantSigma:weights.dominantSigma,
+      effectiveSigma:weights.effectiveSigma,implicitSigma:weights.effectiveSigma,geometricSigma:geo.manifoldDistance/Math.sqrt(d-1),
+      trainingCovered:gap===0,coverageGap:gap,mismatch:Math.log1p(gap),errorActivation:activation,
+      trainingBand:{inner:Math.max(0,R-bandFactor*availableSigma),outer:R+bandFactor*availableSigma,halfWidth:bandFactor*availableSigma,schematic:true},
+      dominantBand:selectedBand,dominantShell:selectedBand,nearestDistance:geo.manifoldDistance,taskApplied:true};
+  }
+  function guidedComparison(parameters,options){
+    const{lambda,alpha}=validate(parameters);options=options||{};
+    const nominalSteps=options.baseSteps??baseSteps,T=options.totalTime??totalTime,errorStrength=options.errorStrength??1;
+    if(!Number.isInteger(nominalSteps)||nominalSteps<8||nominalSteps>400||!Number.isFinite(T)||T<=0||!Number.isFinite(errorStrength)||errorStrength<0||errorStrength>1)throw new RangeError('invalid comparison settings');
+    const steps=Math.max(2,Math.round(nominalSteps/alpha)),h=T/steps;
+    const schedule=Array.from({length:steps+1},(_,k)=>sigmaMax*Math.exp(Math.log(sigmaMin/sigmaMax)*k/steps));
+    schedule[0]=sigmaMax;schedule[steps]=sigmaMin;
+    const configs=schedule.map(s=>G.prepare({d,centers,sigmas:[s]}));
+    function run(kind){
+      const points=[sample(oldPoint,0,kind,lambda,errorStrength,schedule,configs,h)];
+      // Every transition, INCLUDING the first, uses this same time step and
+      // score-plus-guidance rule. We retain all N+1 clock records even after
+      // the sample reaches the manifold or the illustrative path wanders off.
+      for(let k=0;k<steps;k++){
+        const before=points[k],next=before.point.map((v,i)=>v+h*before.velocity[i]);
+        if(!next.every(Number.isFinite))throw new RangeError('non-finite illustrated trajectory');
+        const after=sample(next,k+1,kind,lambda,errorStrength,schedule,configs,h);
+        after.stepSize=h;after.effectiveStepSize=h/before.normalizer;
+        after.effectiveStepSizes=before.normalizers.map(v=>h/v);
+        after.priorDisplacement=before.prior.map((v,i)=>h*v/before.normalizers[i]);
+        after.guidanceDisplacement=before.task.map((v,i)=>h*v/before.normalizers[i]);
+        after.errorDisplacement=before.error.map((v,i)=>h*v/before.normalizers[i]);
+        after.deltaObjective=after.objective-before.objective;points.push(after);
+      }
+      const last=points.at(-1),failed=points.some(p=>p.errorActivation>1e-5);
+      const status=last.constraintSatisfied&&lambda>0?'In constrained manifold region':last.onManifold?'On manifold':failed?'Off-manifold / illustrative mismatch':'Still approaching the manifold';
+      return{kind,points,status,steps,onManifold:last.onManifold,nearData:last.onManifold,
+        inConstrainedRegion:last.constraintSatisfied,constraintSatisfied:last.constraintSatisfied,illustrativeFailure:failed};
+    }
+    const conditional=run('conditional'),unconditioned=run('unconditioned');
+    return{d,lambda,alpha,manifold:{type:'circle',center:[0,0],radius:R},constraint:{type:'rightArc',minX,interiorX},
+      onManifoldTolerance:manifoldTolerance,trainingBandFactor:bandFactor,noiseScales:nScales,
+      initialPoint:oldPoint.slice(),oldPoint:oldPoint.slice(),steps,stepSize:h,totalTime:T,baseSteps:nominalSteps,
+      sigmaMin,sigmaMax,schedule,conditional,unconditioned,taskRetained:true,errorStrength,transverseDamping,
+      note:'One continuous timeline with a prescribed decreasing noise schedule on the left and position-selected noise information on the right. Every update uses the same guided rule and time step within its run. Off-band learned-score failure is conceptual, not a measured neural-network result. Blue training bands are schematic.'};
+  }
+  const presets=Object.freeze({baseline:{lambda:0,alpha:1},mild:{lambda:1,alpha:1},strong:{lambda:9,alpha:1},coarse:{lambda:2,alpha:4}});
+  return Object.freeze({guidedComparison,scaleWeights,geometry,penalty,taskAt,taskCurvature,guidanceDamping,stateOnlyTransverseDamping,presets,
+    constants:{d,sigmaMin,sigmaMax,nScales,baseSteps,totalTime,radius:R,minX,interiorX,transverseDamping,trainingBandFactor:bandFactor,onManifoldTolerance:manifoldTolerance,initialPoint:oldPoint}});
+});
+
+</script><script>
+(function(){
+  'use strict';
+  const M=window.GuidanceMath,$=id=>document.getElementById(id),embedded=window.self!==window.top||new URLSearchParams(location.search).get('embedded')==='1';
+  if(embedded)document.body.dataset.embedded='true';
+  const C={bg:'#fbfaf7',ink:'#181a1b',muted:'#3d4348',blue:'#416e90',orange:'#c77849',gray:'#879294',green:'#397653',red:'#ac5951'};
+  let parameters={...M.presets.strong},comparison=null,key='',step=0,playing=false,timer=null,startTime=0,startPhase=0,lastHeight=0,playbackRate=1;
+  const fmt=(v,n=3)=>Number.isFinite(v)?v.toFixed(n):'—';
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const effective=row=>row.implicitSigma??row.effectiveSigma??row.dominantSigma;
+  function reportHeight(){if(!embedded)return;const h=Math.ceil(document.body.getBoundingClientRect().height+24);if(Math.abs(h-lastHeight)>1){lastHeight=h;parent.postMessage({type:'guidance-landscape-height',height:h},'*');}}
+  function refresh(){const next=parameters.lambda+':'+parameters.alpha;if(next!==key){comparison=M.guidedComparison(parameters);key=next;step=0;}}
+  function index(){return Math.min(comparison.steps,Math.floor(step+1e-8));}
+  function query(kind){return comparison[kind].points[Math.min(index(),comparison[kind].points.length-1)];}
+  function shownPoint(kind){const points=comparison[kind].points,k=Math.min(Math.floor(step),points.length-1),a=points[k],b=points[Math.min(k+1,points.length-1)],f=step-Math.floor(step);return a.point.map((v,i)=>v+f*(b.point[i]-v));}
+  function blendLevel(values){const k=Math.min(Math.floor(step),values.length-1),f=step-Math.floor(step),a=Math.max(1e-12,values[k]),b=Math.max(1e-12,values[Math.min(k+1,values.length-1)]);return Math.exp(Math.log(a)+f*(Math.log(b)-Math.log(a)));}
+  function scheduled(){return blendLevel(comparison.schedule);}
+  function implicit(){return blendLevel(comparison.unconditioned.points.map(effective));}
+  function context(id){const canvas=$(id),r=canvas.getBoundingClientRect();if(r.width<80||r.height<80)return null;const dpr=Math.min(3,devicePixelRatio||1),w=r.width,h=r.height;if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle=C.bg;ctx.fillRect(0,0,w,h);return{ctx,w,h};}
+  function line(ctx,points,color,width=1,dash=[]){if(points.length<2)return;ctx.beginPath();ctx.moveTo(...points[0]);for(let i=1;i<points.length;i++)ctx.lineTo(...points[i]);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([]);}
+  function circle(ctx,p,r,color,stroke){if(!p.every(Number.isFinite))return;ctx.beginPath();ctx.arc(...p,r,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.3;ctx.stroke();}}
+  function text(ctx,value,x,y,color=C.muted,size=12,align='left'){ctx.font=size+'px "Segoe UI",Arial,sans-serif';ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(value,x,y);}
+  function arrow(ctx,a,b,color,width=1.7){const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<1)return;line(ctx,[a,b],color,width);const ux=dx/len,uy=dy/len,k=6;ctx.beginPath();ctx.moveTo(...b);ctx.lineTo(b[0]-k*ux+k*.45*uy,b[1]-k*uy-k*.45*ux);ctx.lineTo(b[0]-k*ux-k*.45*uy,b[1]-k*uy+k*.45*ux);ctx.closePath();ctx.fillStyle=color;ctx.fill();}
+  function transform(w,h){const e=7.2,size=Math.min(w-48,h-70),left=(w-size)/2,top=31,scale=size/(2*e);return{e,size,left,top,scale,xy:p=>[left+(p[0]+e)*scale,top+(e-p[1])*scale]};}
+  function clip(ctx,T){ctx.beginPath();ctx.rect(T.left,T.top,T.size,T.size);ctx.clip();}
+  function ringPoints(radius,start=0,end=2*Math.PI,count=160){const center=comparison.manifold.center;return Array.from({length:count+1},(_,i)=>{const a=start+(end-start)*i/count;return[center[0]+radius*Math.cos(a),center[1]+radius*Math.sin(a)];});}
+  function band(ctx,T,sigma){const R=comparison.manifold.radius,half=(comparison.trainingBandFactor??3.5)*sigma,lo=Math.max(0,R-half),hi=R+half,o=T.xy(comparison.manifold.center);ctx.save();clip(ctx,T);ctx.beginPath();ctx.arc(...o,hi*T.scale,0,2*Math.PI);if(lo>0)ctx.arc(...o,lo*T.scale,0,2*Math.PI,true);ctx.fillStyle='rgba(65,110,144,.075)';ctx.fill('evenodd');for(const r of[lo,hi])if(r>0)line(ctx,ringPoints(r).map(T.xy),'rgba(65,110,144,.32)',1,[3,4]);ctx.restore();}
+  function manifold(ctx,T){const R=comparison.manifold.radius,a=Math.acos(clamp(comparison.constraint.minX/R,-1,1));line(ctx,ringPoints(R).map(T.xy),C.gray,3.4);line(ctx,ringPoints(R,-a,a,80).map(T.xy),C.green,6);for(const angle of[-a,a])circle(ctx,T.xy([R*Math.cos(angle),R*Math.sin(angle)]),2.8,C.green);const p=T.xy([-.55,0]);ctx.font='italic 17px Georgia,serif';ctx.textAlign='center';ctx.fillStyle=C.ink;ctx.fillText('M',...p);const y=T.xy([R+.70,0]);ctx.fillStyle=C.green;ctx.fillText('M',y[0],y[1]);ctx.font='11px Georgia,serif';ctx.fillText('y',y[0]+10,y[1]+4);}
+  function base(ctx,w,h){const T=transform(w,h),o=T.xy([0,0]);line(ctx,[[T.left,o[1]],[T.left+T.size,o[1]]],'#e4e8e7');line(ctx,[[o[0],T.top],[o[0],T.top+T.size]],'#e4e8e7');for(const x of[-T.e,0,T.e]){const p=T.xy([x,-T.e]);text(ctx,fmt(x,1),p[0],p[1]+18,C.muted,11,'center');}text(ctx,'x₁',T.left+T.size,T.top+T.size+33,C.muted,12,'right');text(ctx,'x₂',T.left-14,T.top+8,C.muted,12);return T;}
+  function conditionalColor(row){const t=clamp(Number(row.errorActivation)||0,0,1),blue=[65,110,144],red=[172,89,81];return 'rgb('+blue.map((v,i)=>Math.round(v+(red[i]-v)*t)).join(',')+')';}
+  function status(row,atEnd){if(row.constraintSatisfied)return 'In constrained manifold region';if(row.onManifold)return parameters.lambda===0?'On manifold · no region selected':'On manifold · constraint not yet met';return atEnd?'Off manifold':'Sampling toward the manifold';}
+  function draw(kind,id){const D=context(id);if(!D)return;const{ctx,w,h}=D,T=base(ctx,w,h),q=query(kind),run=comparison[kind],conditional=kind==='conditional';band(ctx,T,conditional?scheduled():implicit());manifold(ctx,T);ctx.save();clip(ctx,T);
+    const k=index(),points=run.points,first=conditional?points.findIndex(p=>!p.trainingCovered):-1;
+    let mismatchLabel=null;
+    if(first>=0&&first<=k){
+      const p=T.xy(points[first].point);ctx.font='11px "Segoe UI",Arial,sans-serif';
+      const width=Math.ceil(ctx.measureText('First mismatch').width)+12;
+      mismatchLabel={point:p,x:T.left+T.size-width-9,y:T.top+5,w:width,h:19};
+      const anchor=[mismatchLabel.x+mismatchLabel.w/2,mismatchLabel.y+mismatchLabel.h],dx=anchor[0]-p[0],dy=anchor[1]-p[1],len=Math.hypot(dx,dy);
+      if(len>7)line(ctx,[[p[0]+7*dx/len,p[1]+7*dy/len],anchor],'#a17c77',1,[3,4]);
+    }
+    for(let i=1;i<=k&&i<points.length;i++){const color=conditional?conditionalColor(points[i-1]):C.green;line(ctx,[T.xy(points[i-1].point),T.xy(points[i].point)],color,2.6);}
+    const point=shownPoint(kind),pixel=T.xy(point),color=conditional?conditionalColor(q):C.green;line(ctx,[T.xy(q.point),pixel],color,2.6);
+    for(let i=0;i<=k&&i<points.length;i++){const c=conditional?conditionalColor(points[i]):C.green;circle(ctx,T.xy(points[i].point),comparison.steps>120?1.5:2.1,c);}
+    if(mismatchLabel){const b=mismatchLabel;circle(ctx,b.point,5.2,C.bg,C.red);ctx.fillStyle=C.bg;ctx.fillRect(b.x,b.y,b.w,b.h);text(ctx,'First mismatch',b.x+6,b.y+14,C.red,11);}
+    circle(ctx,T.xy(comparison.initialPoint),4.3,C.bg,C.blue);circle(ctx,pixel,6.1,color,C.bg);
+    const after=points[Math.min(k+1,points.length-1)],displacement=after.guidanceDisplacement;
+    if(k<comparison.steps&&displacement){const v=[displacement[0]*T.scale,-displacement[1]*T.scale],length=Math.hypot(...v);if(length>1e-8){const scale=Math.min(1,45/length);arrow(ctx,pixel,[pixel[0]+v[0]*scale,pixel[1]+v[1]*scale],C.orange,1.9);}}
+    if(pixel[0]<T.left||pixel[0]>T.left+T.size||pixel[1]<T.top||pixel[1]>T.top+T.size){const x=clamp(pixel[0],T.left+9,T.left+T.size-9),y=clamp(pixel[1],T.top+10,T.top+T.size-10);circle(ctx,[x,y],6,color,C.bg);text(ctx,'outside view',T.left+T.size-6,T.top+36,color,11,'right');}
+    ctx.restore();text(ctx,conditional?'Scheduled σ = '+fmt(scheduled()):'Implicit σ = '+fmt(implicit()),T.left+5,17,conditional?C.blue:C.green,12);text(ctx,status(q,k===comparison.steps),T.left+4,T.top+T.size-8,conditional&&k===comparison.steps&&!q.onManifold?C.red:C.ink,12);
+  }
+  function drawTimeline(){const D=context('noise-timeline');if(!D)return;const{ctx,w,h}=D,left=44,right=w-18,top=20,bottom=h-36,scheduledValues=comparison.schedule,implicitValues=comparison.unconditioned.points.map(effective),floor=comparison.sigmaMin,lo=Math.max(1e-6,Math.min(floor,...implicitValues)*.85),hi=Math.max(comparison.sigmaMax,...implicitValues)*1.18,xx=i=>left+i/comparison.steps*(right-left),yy=s=>bottom-(Math.log(Math.max(lo,s))-Math.log(lo))/Math.log(hi/lo)*(bottom-top);
+    const ticks=[floor,Math.sqrt(floor*comparison.sigmaMax),comparison.sigmaMax];for(const v of ticks){line(ctx,[[left,yy(v)],[right,yy(v)]],'#e2e8e7');text(ctx,fmt(v,v<.1?2:2),left-8,yy(v)+4,C.muted,11,'right');}
+    line(ctx,[[left,yy(floor)],[right,yy(floor)]],C.gray,1,[4,5]);for(const [values,color,faint]of[[scheduledValues,C.blue,'rgba(65,110,144,.18)'],[implicitValues,C.green,'rgba(57,118,83,.18)']]){line(ctx,values.map((s,i)=>[xx(i),yy(s)]),faint,1.3);const points=values.slice(0,index()+1).map((s,i)=>[xx(i),yy(s)]);points.push([xx(step),yy(color===C.blue?scheduled():implicit())]);line(ctx,points,color,2.2);circle(ctx,points.at(-1),4.1,color,C.bg);}
+    line(ctx,[[xx(step),top],[xx(step),bottom]],'#9da9ac',1,[3,5]);for(const i of[0,Math.round(comparison.steps/2),comparison.steps])text(ctx,String(i),xx(i),bottom+19,C.muted,12,'center');text(ctx,'Sampling update',right,h-1,C.muted,12,'right');text(ctx,'noise level · log scale',left,12,C.muted,11);
+  }
+  function drawSpectrum(){if(!$('scale-details').open)return;const D=context('scale-canvas');if(!D)return;const{ctx,w,h}=D,weights=query('unconditioned').weights,sigmas=weights.sigmas,q=weights.driftWeights,p=weights.densityWeights,left=42,right=w-18,top=37,bottom=h-36,max=Math.max(1e-10,...q,...p)*1.1,lo=sigmas[0],hi=sigmas.at(-1),xx=s=>left+(Math.log(clamp(s,lo,hi))-Math.log(lo))/Math.log(hi/lo)*(right-left),yy=v=>bottom-v/max*(bottom-top);for(const v of[0,max/2,max])line(ctx,[[left,yy(v)],[right,yy(v)]],'#e2e8ea');const bw=Math.max(1,(right-left)/sigmas.length*.65);sigmas.forEach((s,i)=>{ctx.fillStyle='rgba(57,118,83,.65)';ctx.fillRect(xx(s)-bw/2,yy(q[i]),bw,bottom-yy(q[i]));});line(ctx,sigmas.map((s,i)=>[xx(s),yy(p[i])]),C.blue,1.6);line(ctx,[[xx(scheduled()),top],[xx(scheduled()),bottom]],C.gray,1,[3,4]);for(const s of[lo,.15,.4,1,hi].filter((s,i,a)=>s>=lo&&s<=hi&&a.indexOf(s)===i))text(ctx,fmt(s,s<1?2:1),xx(s),bottom+19,C.muted,12,'center');$('spectrum-caption').textContent=sigmas.length+' state-selected scales';}
+  function description(row,kind){if(row.constraintSatisfied)return 'On the manifold, inside the constraint-satisfying region.';if(row.onManifold)return parameters.lambda===0?'On the manifold. No guidance requires a particular region.':'On the manifold; guidance continues toward the constrained region.';if(kind==='conditional')return row.trainingCovered?'This score query is inside its scheduled training band.':index()===comparison.steps?'The scheduled σ has reached σ min, but the illustrative path remains off the manifold.':'Outside the scheduled training band: the red route illustrates accumulated score error.';return row.trainingCovered?'The current position selects its implicit noise state. Guidance is still included in the update.':'The analytic field is defined here; this query exceeds the represented training coverage.';}
+  function readouts(){const c=query('conditional'),u=query('unconditioned'),endC=comparison.conditional.points.at(-1),endU=comparison.unconditioned.points.at(-1);$('guidance-strength').value=parameters.lambda;$('guidance-value').value=fmt(parameters.lambda,2);$('step-multiplier').value=parameters.alpha;$('step-value').value=fmt(parameters.alpha,2);$('step-count').textContent=comparison.steps;$('step-size-value').textContent=fmt(comparison.stepSize,3);$('lambda-summary').textContent=fmt(parameters.lambda,2);$('sampling-progress').max=comparison.steps;$('sampling-progress').value=index();$('sampling-value').value=index();$('sampling-max').textContent=comparison.steps;$('assigned-scale').textContent=fmt(scheduled());$('effective-scale').textContent=fmt(implicit());$('conditional-distance').textContent=fmt(c.manifoldDistance);$('geometric-scale').textContent=fmt(u.manifoldDistance);$('play-button').textContent=playing?'Pause sampling':'Play sampling';$('play-button').setAttribute('aria-pressed',String(playing));
+    for(const[kind,row,id]of[['conditional',c,'conditional-next-reading'],['unconditioned',u,'unconditioned-next-reading']]){const stateClass=row.constraintSatisfied?'covered':row.onManifold||row.trainingCovered?'supported':'uncertain';$(id).className='next-reading '+stateClass;$(id).textContent=description(row,kind);}
+    const noGuidance=parameters.lambda<1e-10,both=endC.constraintSatisfied&&endU.constraintSatisfied,scheduledFailure=comparison.conditional.illustrativeFailure&&!endC.onManifold;$('regime-reading').textContent=noGuidance?'No guidance: both constructions return to the manifold. No part of it is preferred.':both?'Gentle control: both paths can reach the constrained region while the scheduled noise keeps decreasing.':scheduledFailure?'Stronger control or coarser updates: the scheduled path illustrates off-band error; the state-only path keeps adapting while guidance selects the green region.':'Guidance is active throughout the approach. At this strength and update budget, one or both paths have not yet reached the constrained region.';
+    $('main-reading').innerHTML=noGuidance?'Both paths approach <strong>the same data manifold</strong>. The blue path moves inward with its shrinking noise band. The fixed-field path selects its noise scale from the position it reaches.':both?'Both paths can reach <strong>the constraint-satisfying region</strong>. They use the same guidance coefficient throughout the run.':scheduledFailure?'The schedule and the state now disagree. <strong>The fixed field queries the actual position and keeps combining its score with guidance.</strong> The red route illustrates the error that can accumulate after a scheduled-label mismatch.':'The task gradient remains active alongside the prior. <strong>Check both manifold distance and constraint satisfaction at this finite update budget.</strong> Very weak guidance may leave the constraint unfinished.';
+    $('playback-reading').textContent='Update '+index()+' / '+comparison.steps+' · '+comparison.steps+' actual updates at step size '+fmt(comparison.stepSize,3)+'. Playback gradually accelerates later in the run. Position, training band, and noise history remain synchronized.';
+    document.querySelectorAll('[data-playback-rate]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.playbackRate)===playbackRate)));
+    $('schedule-reading').textContent='The blue schedule decreases from '+fmt(comparison.sigmaMax)+' to σ min = '+fmt(comparison.sigmaMin)+' over the complete run. The green curve is selected by position; its endpoint is not prescribed.';
+    $('timeline-caption').textContent='Same '+comparison.steps+' updates · scheduled versus implicit σ';
+    const failedAt=comparison.conditional.points.findIndex(p=>!p.trainingCovered),peakRatio=Math.max(...comparison.conditional.points.map(p=>p.manifoldDistance/((comparison.trainingBandFactor??2.5)*p.scheduledSigma)));
+    $('mismatch-summary').textContent=failedAt<0?'Run summary: all scheduled queries stay inside the training band · peak band ratio '+fmt(peakRatio,2)+'×.':'Run summary: first mismatch '+failedAt+'/'+comparison.steps+' ('+Math.round(100*failedAt/comparison.steps)+'% of the run) · peak band ratio '+fmt(peakRatio,1)+'×.';
+    $('coverage-reading').textContent='Arrival is shown in a finite-noise neighborhood: distance to the manifold ≤ 2.5 σ min = '+fmt(comparison.onManifoldTolerance??.15,2)+'. Constrained arrival also requires being on the green side. Guidance stays active throughout.';
+    document.querySelectorAll('[data-preset]').forEach(el=>{const p=M.presets[el.dataset.preset],active=Math.abs(parameters.lambda-p.lambda)<1e-9&&Math.abs(parameters.alpha-p.alpha)<1e-9;el.setAttribute('aria-pressed',String(active));});
+  }
+  function render(){refresh();readouts();draw('conditional','conditional-canvas');draw('unconditioned','unconditioned-canvas');drawTimeline();drawSpectrum();reportHeight();}
+  function stop(){playing=false;if(timer!==null){clearTimeout(timer);timer=null;}}
+  function setParameters(patch,preserveProgress=false){const progress=preserveProgress&&comparison?step/comparison.steps:0;stop();parameters={...parameters,...patch};parameters.lambda=clamp(Number(parameters.lambda),0,10);parameters.alpha=clamp(Number(parameters.alpha),.25,4);refresh();step=progress*comparison.steps;render();}
+  function setIteration(n){stop();step=clamp(Number(n),0,comparison.steps);render();}
+  // Viewing time is linear for the first 40% of updates, then smoothly
+  // compresses the slower tail. All views still share one true update index.
+  function viewingPhase(progress){const p=clamp(progress,0,1),u=clamp((p-.4)/.6,0,1);return p-.45*(u**3-.5*u**4);}
+  function progressAtPhase(phase){if(phase<=0)return 0;if(phase>=.775)return 1;let lo=0,hi=1;for(let i=0;i<40;i++){const mid=(lo+hi)/2;if(viewingPhase(mid)<phase)lo=mid;else hi=mid;}return(lo+hi)/2;}
+  function duration(){return 9300/playbackRate;}
+  function setPlaybackRate(value){const resume=playing;stop();playbackRate=clamp(Number(value),.5,2);if(resume){startPhase=viewingPhase(step/comparison.steps);startTime=performance.now();playing=true;timer=setTimeout(tick,33);}render();}
+  function play(){if(playing){stop();render();return;}if(step>=comparison.steps)step=0;startPhase=viewingPhase(step/comparison.steps);startTime=performance.now();playing=true;render();timer=setTimeout(tick,33);}
+  function tick(){timer=null;if(!playing)return;const phase=startPhase+Math.max(0,performance.now()-startTime)*playbackRate/12000;step=comparison.steps*progressAtPhase(phase);if(step>=comparison.steps)stop();render();if(playing)timer=setTimeout(tick,33);}
+  $('guidance-strength').addEventListener('input',e=>setParameters({lambda:+e.target.value},true));$('step-multiplier').addEventListener('input',e=>setParameters({alpha:+e.target.value},true));$('sampling-progress').addEventListener('input',e=>setIteration(+e.target.value));
+  document.querySelectorAll('[data-preset]').forEach(el=>el.addEventListener('click',()=>setParameters(M.presets[el.dataset.preset])));
+  document.querySelectorAll('[data-playback-rate]').forEach(el=>el.addEventListener('click',()=>setPlaybackRate(el.dataset.playbackRate)));
+  $('play-button').addEventListener('click',play);$('step-button').addEventListener('click',()=>setIteration(step>=comparison.steps?0:Math.floor(step)+1));$('restart-button').addEventListener('click',()=>setIteration(0));$('reset-button').addEventListener('click',()=>{key='';setParameters(M.presets.strong);});
+  $('scale-details').addEventListener('toggle',()=>{drawSpectrum();reportHeight();});
+  const observer=new ResizeObserver(()=>render());['conditional-canvas','unconditioned-canvas','noise-timeline','scale-canvas'].forEach(id=>observer.observe($(id)));new ResizeObserver(reportHeight).observe(document.body);
+  window.guidanceDemo={getState:()=>({parameters:{...parameters},iteration:index(),currentStep:step,playing,playingMode:playing?'sampling':null,comparison,currentConditional:query('conditional'),currentUnconditioned:query('unconditioned'),displayConditional:shownPoint('conditional'),displayUnconditioned:shownPoint('unconditioned'),steps:comparison.steps,stepSize:comparison.stepSize,currentScheduledSigma:scheduled(),currentImplicitSigma:implicit(),playbackRate,playbackDurationMs:duration()}),setParameters,setIteration,setPlaybackRate,reset:()=>{key='';setParameters(M.presets.strong);}};
+  render();
+})();
+
+</script>
+</body></html>

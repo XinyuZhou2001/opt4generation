@@ -1,0 +1,152 @@
+{
+  "generation-population": {
+    "id": "generation-population",
+    "tex": "p_{\\mathrm{data}}(x)",
+    "size": 21,
+    "color": "#25292b",
+    "width": 78.578125,
+    "height": 39.5,
+    "file": "generation-population.png",
+    "pixelScale": 4
+  },
+  "generation-empirical": {
+    "id": "generation-empirical",
+    "tex": "p^*(x)=\\frac{1}{M}\\sum_{j=1}^{M}\\delta(x-\\mu_j)",
+    "size": 20,
+    "color": "#25292b",
+    "width": 235.625,
+    "height": 38.703125,
+    "file": "generation-empirical.png",
+    "pixelScale": 4
+  },
+  "generation-narrow": {
+    "id": "generation-narrow",
+    "tex": "\\widehat p_\\sigma=p^*\\ast\\mathcal N(0,\\sigma^2I)",
+    "size": 21,
+    "color": "#416e90",
+    "width": 185.90625,
+    "height": 39.5,
+    "file": "generation-narrow.png",
+    "pixelScale": 4
+  },
+  "generation-broad": {
+    "id": "generation-broad",
+    "tex": "\\widehat p_\\sigma=p^*\\ast\\mathcal N(0,\\sigma^2I)",
+    "size": 21,
+    "color": "#c77849",
+    "width": 185.90625,
+    "height": 39.5,
+    "file": "generation-broad.png",
+    "pixelScale": 4
+  },
+  "generation-narrow-arrow": {
+    "id": "generation-narrow-arrow",
+    "tex": "\\text{Arrows:}\\;\\nabla_x\\log\\widehat p_\\sigma(x)",
+    "size": 18,
+    "color": "#416e90",
+    "width": 171.015625,
+    "height": 35,
+    "file": "generation-narrow-arrow.png",
+    "pixelScale": 4
+  },
+  "generation-broad-arrow": {
+    "id": "generation-broad-arrow",
+    "tex": "\\text{Arrows:}\\;\\nabla_x\\log\\widehat p_\\sigma(x)",
+    "size": 18,
+    "color": "#c77849",
+    "width": 171.015625,
+    "height": 35,
+    "file": "generation-broad-arrow.png",
+    "pixelScale": 4
+  },
+  "routes-perturbation": {
+    "id": "routes-perturbation",
+    "tex": "X=\\mu_j+\\sigma_i\\varepsilon,\\qquad\\varepsilon\\sim\\mathcal N(0,I)",
+    "size": 28,
+    "color": "#25292b",
+    "width": 380.34375,
+    "height": 50,
+    "file": "routes-perturbation.png",
+    "pixelScale": 4
+  },
+  "routes-family": {
+    "id": "routes-family",
+    "tex": "\\text{A family of scores}\\quad\\{\\nabla_x\\log\\widehat p_{\\sigma_i}(x)\\}",
+    "size": 28,
+    "color": "#416e90",
+    "width": 430.90625,
+    "height": 50,
+    "file": "routes-family.png",
+    "pixelScale": 4
+  },
+  "routes-one": {
+    "id": "routes-one",
+    "tex": "\\text{One score}\\quad\\nabla_x\\log p_{MN}(x)",
+    "size": 28,
+    "color": "#c77849",
+    "width": 327.296875,
+    "height": 50,
+    "file": "routes-one.png",
+    "pixelScale": 4
+  },
+  "routes-mixture": {
+    "id": "routes-mixture",
+    "tex": "p_{MN}(x)\\propto\\sum_i\\sigma_i^2\\,\\widehat p_{\\sigma_i}(x)",
+    "size": 28,
+    "color": "#c77849",
+    "width": 283.5625,
+    "height": 50,
+    "file": "routes-mixture.png",
+    "pixelScale": 4
+  },
+  "source-max": {
+    "id": "source-max",
+    "tex": "p_{\\sigma_{\\max}}^Q",
+    "size": 32,
+    "color": "#416e90",
+    "width": 71.875,
+    "height": 56,
+    "file": "source-max.png",
+    "pixelScale": 4
+  },
+  "source-min": {
+    "id": "source-min",
+    "tex": "p_{\\sigma_{\\min}}^Q",
+    "size": 32,
+    "color": "#c77849",
+    "width": 68.78125,
+    "height": 56,
+    "file": "source-min.png",
+    "pixelScale": 4
+  },
+  "source-balance": {
+    "id": "source-balance",
+    "tex": "\\nabla\\!\\cdot\\!\\bigl(A_Np_{MN}\\nabla\\log p_{MN}\\bigr)=p_{\\sigma_{\\max}}^Q-p_{\\sigma_{\\min}}^Q+\\mathcal R_N",
+    "size": 34,
+    "color": "#262c30",
+    "width": 651.21875,
+    "height": 59,
+    "file": "source-balance.png",
+    "pixelScale": 4
+  },
+  "mobile-left": {
+    "id": "mobile-left",
+    "tex": "\\nabla\\!\\cdot\\!\\bigl(A_Np_{MN}\\nabla\\log p_{MN}\\bigr)",
+    "size": 32,
+    "color": "#262c30",
+    "width": 322.84375,
+    "height": 56,
+    "file": "mobile-left.png",
+    "pixelScale": 4
+  },
+  "mobile-right": {
+    "id": "mobile-right",
+    "tex": "=p_{\\sigma_{\\max}}^Q-p_{\\sigma_{\\min}}^Q+\\mathcal R_N",
+    "size": 32,
+    "color": "#262c30",
+    "width": 291.859375,
+    "height": 56,
+    "file": "mobile-right.png",
+    "pixelScale": 4
+  }
+}

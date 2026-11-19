@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Explore how curvature, training-point spacing and a positive noise floor change score sharing and exact empirical-score ascent.">
+  <title>Local Geometry and New Generative Outcomes</title>
+  <style>
+:root{color-scheme:light;--bg:#fbfaf7;--ink:#181a1b;--muted:#3d4348;--rule:#d9dedf;--blue:#416e90;--orange:#c77849;--green:#557b6e;--gray:#8c979b;--soft:#edf1f2;--font:Georgia,'Times New Roman',serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--font)}a{color:var(--blue);text-underline-offset:4px}button,input{font:inherit}button{font-family:'Segoe UI',Arial,sans-serif;cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible,canvas:focus-visible{outline:3px solid var(--orange);outline-offset:4px}.page-header{max-width:1280px;margin:auto;padding:25px 34px 0;display:flex;justify-content:space-between;gap:25px;align-items:center;font:12px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.page-header a{text-decoration:none;font-size:14px}main{max-width:1240px;margin:56px auto 60px;padding:0 32px}.opening{max-width:880px}.eyebrow{font:12px/1.5 'Segoe UI',Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}h1{font:500 clamp(40px,4.6vw,62px)/1.12 var(--font);letter-spacing:-.045em;margin:0 0 23px}.dek{font-size:21px;line-height:1.6;color:#3d4348;max-width:810px;margin:0 0 38px}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:24px 0 18px;font:14px/1.5 'Segoe UI',Arial,sans-serif}.controls label>span:first-child{display:flex;gap:5px;align-items:baseline;margin-bottom:13px}.controls output{margin-left:auto;font-size:16px;font-variant-numeric:tabular-nums;color:var(--blue);font-weight:600}.controls sub{margin-left:-4px}.controls input{display:block;width:100%;accent-color:var(--blue);cursor:pointer;margin:0}.range-ends{display:flex;justify-content:space-between;margin-top:6px;color:var(--muted);font-size:12px}.scene-tools{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:20px 0 12px;font:14px/1.5 'Segoe UI',Arial,sans-serif}.presets{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.presets>span{color:var(--muted);font-size:13px}.presets button{border:0;border-bottom:1px solid #c4d1da;background:none;padding:3px 0;color:var(--blue);font-size:14px}.field-toggle{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}.field-toggle input{accent-color:var(--blue)}.parameter-note{font:13px/1.65 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:0 0 29px}.formula{font-family:'Cambria Math',Georgia,serif}.main-scene{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start}.plot-panel{min-width:0}.plot-heading{display:flex;justify-content:space-between;align-items:baseline;gap:16px;min-height:27px}.plot-heading h2{font:500 17px/1.45 'Segoe UI',Arial,sans-serif;margin:0}.plot-heading>span{font:12px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.plot-heading button{font-size:12px;padding:0;background:none;border:0;color:var(--blue);white-space:nowrap}canvas{display:block;width:100%;touch-action:none}#geometry-canvas{height:480px;cursor:crosshair}#weights-canvas{height:295px}.legend{display:flex;flex-wrap:wrap;gap:11px 22px;font:12px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted);margin-top:8px}.legend span,.outcome-counts span{display:flex;align-items:center;gap:7px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}.blue{background:var(--blue)}.orange{background:var(--orange)}.green{background:var(--green)}.gray{background:var(--gray)}.diamond{display:inline-block;width:7px;height:7px;transform:rotate(45deg);background:var(--ink)}.plot-note{font:12px/1.65 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:12px 0 0}.probe-metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:26px 0 3px;font:13px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted)}.probe-metrics span{display:block;margin-bottom:6px}.probe-metrics strong{display:block;font:500 34px/1.2 var(--font);letter-spacing:-.035em;color:var(--blue);font-variant-numeric:tabular-nums}.probe-reading{font-size:17px;line-height:1.65;color:#3d4348;margin:17px 0 12px}.probe-location{font:12px/1.7 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:0}.playback{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin-top:28px;padding:20px 0 16px;font:14px/1.5 'Segoe UI',Arial,sans-serif}.playback-top{display:flex;justify-content:space-between;align-items:center;gap:20px}.transport{display:flex;gap:9px;flex-wrap:wrap}.transport button{border:1px solid var(--rule);background:none;border-radius:4px;padding:7px 13px;font-size:14px;color:var(--ink)}.transport #play-button{background:var(--blue);border-color:var(--blue);color:white;min-width:70px}.step-label{white-space:nowrap;color:var(--muted);font-size:13px}.step-label output{color:var(--ink);font-variant-numeric:tabular-nums}.scrubber{display:flex;gap:18px;align-items:center;margin-top:17px;color:var(--muted);font-size:13px}.scrubber input{accent-color:var(--blue);flex:1;min-width:0;cursor:pointer}.outcomes-panel{margin-top:28px}#outcomes-canvas{height:195px}.outcome-counts{display:flex;flex-wrap:wrap;gap:12px 24px;font:13px/1.5 'Segoe UI',Arial,sans-serif;color:var(--muted);margin-top:7px}.outcome-counts strong{font-weight:600;color:var(--ink);margin-left:2px;font-variant-numeric:tabular-nums}.ensemble-metrics{display:flex;gap:12px 27px;flex-wrap:wrap;margin-top:16px;font:12px/1.65 'Segoe UI',Arial,sans-serif;color:var(--muted)}.ensemble-metrics strong{font-size:14px;font-weight:500;color:var(--ink);margin-left:6px;font-variant-numeric:tabular-nums}.main-reading{font-size:19px;line-height:1.7;color:#3d4348;margin:25px 0 18px}.main-reading strong{font-weight:500;color:var(--blue)}.scope-note{font:13px/1.75 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:0;max-width:1040px}.scope-note strong{font-weight:500;color:#3d4348}.technical-note{font:14px/1.8 'Segoe UI',Arial,sans-serif;color:#3d4348;margin-top:29px;border-top:1px solid var(--rule);padding-top:18px}.technical-note summary{color:var(--blue);cursor:pointer}.technical-note>div{max-width:1000px;padding-top:14px}.technical-note p{margin:0 0 15px}.technical-note .formula{font-size:16px;color:var(--ink)}.figure-footer{border-top:1px solid var(--rule);margin-top:27px;padding-top:19px;display:flex;align-items:center;justify-content:space-between;gap:20px;font:12px/1.6 'Segoe UI',Arial,sans-serif;color:var(--muted)}.figure-footer button{background:none;border:0;color:var(--blue);font-size:13px;padding:3px 0}
+body[data-embedded=true] .page-header{display:none}body[data-embedded=true] main{margin:28px auto 20px;padding:0 22px}body[data-embedded=true] .eyebrow{display:none}body[data-embedded=true] h1{font-size:43px}body[data-embedded=true] .dek{font-size:18px;margin-bottom:28px}
+@media(max-width:900px){main{padding:0 26px}.controls{gap:23px}.main-scene{gap:23px;grid-template-columns:1.25fr 1fr}.plot-heading{display:block;min-height:50px}.plot-heading>span{display:block;margin-top:4px}.plot-heading button{margin-top:6px}#geometry-canvas{height:430px}.scene-tools{align-items:flex-start}.probe-metrics{gap:10px}.probe-metrics span{font-size:12px}.probe-metrics strong{font-size:30px}.playback-top{align-items:flex-start}}
+@media(max-width:660px){body{font-size:16px}.page-header{padding:19px 20px 0;font-size:12px}.page-header>span{max-width:150px;text-align:right}.page-header a{font-size:13px}main{margin-top:35px;padding:0 20px}h1{font-size:42px}.dek{font-size:18px;line-height:1.65;margin-bottom:29px}.controls{grid-template-columns:1fr;gap:23px}.controls output{font-size:16px}.controls label>span:first-child{margin-bottom:11px;font-size:14px}.scene-tools{display:block}.presets{gap:9px 17px}.presets>span{display:none}.presets button{font-size:14px}.field-toggle{margin:17px 0 0;font-size:14px}.parameter-note{font-size:12px;line-height:1.75;margin-bottom:26px}.main-scene{grid-template-columns:1fr;gap:32px}.plot-heading{display:flex;min-height:27px;align-items:baseline}.plot-heading h2{font-size:16px}.plot-heading>span{font-size:12px;text-align:right;margin:0}.plot-heading button{font-size:13px;margin:0}#geometry-canvas{height:265px}#weights-canvas{height:260px}.legend{gap:10px 17px;font-size:12px}.probe-metrics{margin-top:22px;gap:25px}.probe-metrics span{font-size:13px}.probe-metrics strong{font-size:33px}.probe-reading{font-size:17px}.playback-top{display:block}.step-label{display:block;margin-top:15px}.transport{gap:8px}.transport button{padding:7px 11px;font-size:14px}.scrubber{font-size:12px;gap:12px}.outcomes-panel .plot-heading{display:block}.outcomes-panel .plot-heading>span{display:block;text-align:left;margin-top:7px}#outcomes-canvas{height:210px}.outcome-counts{gap:12px 20px;font-size:13px}.ensemble-metrics{font-size:12px;gap:8px 20px}.main-reading{font-size:18px}.scope-note{font-size:12px}.technical-note{font-size:13px}.technical-note .formula{font-size:15px}.figure-footer{font-size:12px;align-items:flex-start}.figure-footer>span{max-width:210px}.figure-footer button{font-size:13px;white-space:nowrap}body[data-embedded=true] h1{font-size:35px}}
+:root{--muted:#3d4348;--ink:#181a1b;--blue:#315f7f;--orange:#b45c2d;--green:#356c55;--gray:#667b86}
+.scene-tools{align-items:flex-start;flex-wrap:wrap}.presets{flex:1 1 650px}.field-toggle{flex:0 0 auto;font-size:14px}.presets>span{font-size:14px}.range-ends{font-size:14px}.parameter-note{font-size:14px;line-height:1.75;margin-bottom:12px}.reach-note{display:flex;flex-wrap:wrap;gap:5px 16px;font:14px/1.75 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:0 0 28px}.reach-note strong{font-weight:600;color:var(--blue)}.reach-note span{max-width:850px}
+.plot-heading>span,.plot-heading button,.plot-note,.legend,.probe-metrics span,.probe-location,.step-label,.scrubber,.outcome-counts,.ensemble-metrics,.scope-note,.technical-note,.figure-footer,.figure-footer button{font-size:14px}.plot-note{line-height:1.75}.legend,.outcome-counts{color:#3d4348;gap:13px 23px}.legend span,.outcome-counts span{gap:9px}.legend .diamond{width:10px;height:10px;background:var(--ink);border:1px solid var(--bg)}
+.training-symbol{width:11px;height:11px;background:var(--blue);border:1px solid #203d50;display:inline-block;flex-shrink:0}.query-symbol{width:14px;height:14px;display:inline-block;flex-shrink:0;position:relative;border:2px solid var(--orange);border-radius:50%;background:var(--bg)}.query-symbol:after{content:'';position:absolute;left:3px;top:3px;width:4px;height:4px;border-radius:50%;background:var(--orange)}.outcome-symbol{display:inline-block;flex-shrink:0}.capture-symbol{width:11px;height:11px;background:var(--blue);border:1px solid #203d50;border-radius:50%}.between-symbol{width:11px;height:11px;background:var(--green);border:1px solid #234b3c}.away-symbol{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid var(--orange)}.refining-symbol{width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--gray)}
+.normal-zoom-controls{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 20px;font:14px/1.6 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:15px 0 7px}.normal-zoom-controls label{display:flex;gap:9px;align-items:center;cursor:pointer}.normal-zoom-controls input{accent-color:var(--blue);width:16px;height:16px}.normal-zoom-controls strong{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}#outcomes-canvas{height:225px}.outcome-counts strong{font-size:15px}.ensemble-metrics strong{font-size:15px}
+@media(max-width:660px){.scene-tools{display:block}.range-ends,.parameter-note,.reach-note,.plot-heading>span,.plot-heading button,.plot-note,.legend,.probe-metrics span,.probe-location,.step-label,.scrubber,.outcome-counts,.ensemble-metrics,.scope-note,.technical-note,.figure-footer,.figure-footer button{font-size:14px}.normal-zoom-controls{display:block}.normal-zoom-controls>span{display:block;margin-top:9px}#outcomes-canvas{height:240px}.legend,.outcome-counts{gap:13px 20px}.figure-footer>span{max-width:200px}.field-toggle{margin-top:18px}}
+
+.initial-symbol{display:inline-block;width:12px;height:12px;position:relative;flex-shrink:0}.initial-symbol:before,.initial-symbol:after{content:"";position:absolute;left:5px;top:0;width:2px;height:12px;background:#627c8b}.initial-symbol:before{transform:rotate(45deg)}.initial-symbol:after{transform:rotate(-45deg)}
+.theory-feedback{display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;margin:17px 0 0;font:14px/1.6 'Segoe UI',Arial,sans-serif;color:var(--muted)}.theory-feedback p{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin:0}.theory-expression{white-space:nowrap;color:var(--ink);font-family:'Cambria Math',Georgia,serif;font-size:16px}.theory-expression strong{font:600 16px/1.6 'Segoe UI',Arial,sans-serif;margin-left:12px;font-variant-numeric:tabular-nums}.theory-scale-note{font:14px/1.7 'Segoe UI',Arial,sans-serif;color:var(--muted);margin:9px 0 0}.computed-preview{font:14px/1.8 'Segoe UI',Arial,sans-serif;color:var(--ink);margin:12px 0 0}.computed-preview strong{font-weight:600}.parameter-feedback{font:14px/1.75 'Segoe UI',Arial,sans-serif;color:#3d4348;margin:8px 0 0}.parameter-feedback[hidden]{display:none}
+@media(max-width:660px){.theory-feedback{grid-template-columns:1fr;gap:9px}.theory-feedback p{gap:8px}.computed-preview,.theory-scale-note,.parameter-feedback{font-size:14px}.theory-expression{font-size:16px}}
+
+</style>
+</head>
+<body>
+  <header class="page-header"><a href="index.html#9-local-geometry-decides-how-much-smoothing-is-safe">Back to the essay</a><span>Gaussian denoising · a second explorable figure</span></header>
+  <main>
+    <div class="opening"><p class="eyebrow">From individual samples to local geometry</p><h1>When the neighbors share the slope</h1><p class="dek">A sharp score can pull toward one remembered point. A smoother score can combine nearby points. The curve decides how safely we can make that average.</p></div>
+    <div class="controls" aria-label="Geometry and smoothing parameters">
+      <label for="curvature"><span>Vertex curvature <i>κ</i><output id="curvature-value">0.10</output></span><input id="curvature" type="range" min="0" max="0.80" step="0.01" value="0.10"><span class="range-ends"><span>Flat · 0</span><span>More curved · 0.80</span></span></label>
+      <label for="spacing"><span>Training-cell spacing <i>ℓ</i><output id="spacing-value">0.80</output></span><input id="spacing" type="range" min="0.35" max="1.30" step="0.01" value="0.80"><span class="range-ends"><span>Dense · 0.35</span><span>Sparse · 1.30</span></span></label>
+      <label for="noise-floor"><span>Noise floor <i>σ</i><sub>min</sub><output id="noise-floor-value">0.20</output></span><input id="noise-floor" type="range" min="0" max="1000" step="1" value="541"><span class="range-ends"><span>0.03</span><span>1.00</span></span></label>
+    </div>
+    <div class="theory-feedback" aria-label="Theory scales at the current settings">
+      <p><span>Smoothing / training-cell spacing</span><span class="theory-expression">σ<sub>min</sub> / ℓ <strong id="smoothing-ratio">0.25</strong></span></p>
+      <p><span>Geometric bias scale / spacing</span><span class="theory-expression">σ<sub>min</sub>² / (τℓ) <strong id="curvature-ratio">0.005</strong></span></p>
+    </div>
+    <p class="theory-scale-note">These ratios relate the controls to observation scale and curvature. The second is the geometric term in the manifold-error analysis; it is not a certified error bound by itself.</p>
+    <p class="computed-preview" id="computed-preview" aria-live="polite"></p>
+    <p class="parameter-feedback" id="parameter-feedback" aria-live="polite" hidden></p>
+    <div class="scene-tools"><div class="presets"><span>Try</span><button type="button" data-preset="capture">Sample capture</button><button type="button" data-preset="shared">Shared neighborhood</button><button type="button" data-preset="bias">Curvature bias</button><button type="button" data-preset="positiveFloor">Large reach, σmin = 0.5</button><button type="button" data-preset="curvedFloor">Small reach, σmin = 0.5</button></div><label class="field-toggle"><input id="show-field" type="checkbox" checked> Show score directions</label></div>
+    <p class="parameter-note">Arclength means distance along the curve. Each cell groups two observations around position kℓ, at <span class="formula">ℓ(k ± 1/6)</span>; consecutive gaps alternate between ℓ/3 and 2ℓ/3. The broad cutoff stays fixed at <span class="formula">σ<sub>max</sub> = 3</span>.</p>
+    <p class="reach-note"><strong id="reach-value">Reach τ = 10</strong><span>Reach is the radius of a neighborhood around the curve in which every location has one nearest point on the curve.</span></p>
+    <div class="main-scene">
+      <section class="plot-panel geometry-panel"><div class="plot-heading"><h2>The local pull toward the data</h2><button type="button" id="zoom-button">Zoom local detail</button></div><canvas id="geometry-canvas" tabindex="0" role="img" aria-label="Local reference manifold, paired training points, weighted score contributions, query point and ascent trajectories. Drag or click to move the query; arrow keys move it in small increments."></canvas><div class="legend"><span><i class="training-symbol"></i>Training point</span><span><i class="query-symbol"></i>Query x</span><span><i class="diamond"></i>Weighted average μ̄</span><span><i class="initial-symbol"></i>Fixed start</span></div><p class="plot-note">Drag the orange query, or move it with the arrow keys. Every one of the 82 observations contributes, including observations outside this local view. Score arrows show direction; their lengths are normalized.</p></section>
+      <section class="plot-panel weights-panel"><div class="plot-heading"><h2>Who determines this score?</h2><button type="button" id="reset-probe">Reset query</button></div><div class="probe-metrics"><div><span>Largest center weight</span><strong id="top-share">—</strong></div><div><span>Effective contributors</span><strong id="effective-count">—</strong></div></div><canvas id="weights-canvas" role="img" aria-label="Largest precision-normalized training-point weights in the local average at the query point"></canvas><p class="plot-note" id="weights-note"></p><p class="probe-reading" id="probe-reading" aria-live="polite"></p><p class="probe-location" id="probe-location"></p></section>
+    </div>
+    <div class="playback">
+      <div class="playback-top"><div class="transport"><button type="button" id="play-button" aria-pressed="false">Play</button><button type="button" id="step-button">One step</button><button type="button" id="restart-button">Restart</button><button type="button" id="outcomes-button">Show outcomes</button></div><span class="step-label">Refinement step <output id="iteration-value">0</output> / <span id="iteration-max">1200</span></span></div>
+      <label class="scrubber" for="iteration">Trajectory progress<input id="iteration" type="range" min="0" max="1200" value="0" step="1"></label>
+      <p class="plot-note">Playback follows visible movement and compresses nearly stationary refinement. Step labels remain the actual update numbers; Show outcomes displays the full numerical endpoint.</p>
+    </div>
+    <section class="outcomes-panel"><div class="plot-heading"><h2>Different starts, different outcomes</h2><span id="resolved-label">Refining the fixed starts</span></div><div class="normal-zoom-controls"><label for="follow-refinement"><input id="follow-refinement" type="checkbox" checked> Follow refinement</label><span>Vertical range <strong id="normal-range">—</strong> · normal zoom <strong id="normal-zoom">1×</strong></span></div><canvas id="outcomes-canvas" role="img" aria-label="Current locations from all fixed starting points, by arclength cell and normal distance from the manifold. The normal axis can zoom as refinement proceeds; axis range and zoom are displayed explicitly."></canvas><p class="plot-note" id="normal-zoom-note"></p><div class="outcome-counts" aria-live="polite"><span><i class="outcome-symbol capture-symbol"></i>Near a training point <strong id="capture-count">0</strong></span><span><i class="outcome-symbol between-symbol"></i>Between samples, near the curve <strong id="between-count">0</strong></span><span><i class="outcome-symbol away-symbol"></i>Away from the curve <strong id="away-count">0</strong></span><span><i class="outcome-symbol refining-symbol"></i>Still refining <strong id="refining-count">15</strong></span></div><div class="ensemble-metrics"><span>Distinct resolved cells <strong id="distinct-cells">—</strong></span><span>Median training distance / ℓ <strong id="training-distance">—</strong></span><span>Median normal distance / ℓ <strong id="manifold-distance">—</strong></span><span>Largest remaining pull / ℓ <strong id="maximum-residual">—</strong></span></div><p class="plot-note">The upper view shows the reference curve. This view separates position along the curve from normal displacement, both measured in units of ℓ. The remaining pull is the distance from a point to its current weighted average: how far its update still wants to move. The same fixed starts are used after every parameter change. Cell counts describe this illustrative ensemble, rather than population coverage probabilities.</p></section>
+    <p class="main-reading" id="main-reading" aria-live="polite"></p>
+    <p class="scope-note"><strong>Novelty, fidelity, and diversity are separate.</strong> An outcome between training points is useful only if it remains close to the manifold, and multiple regions remain populated. The plot displays these diagnostics separately; it does not certify population generalization.</p>
+    <details class="technical-note"><summary>The model and the resolution of the diagnostics</summary><div><p>The reference curve is the parabola <span class="formula">μ(u) = (u, κu²/2)</span>. The control κ is its curvature at the vertex. Away from the vertex its curvature is <span class="formula">κ/(1 + κ²u²)<sup>3/2</sup></span>. At κ = 0 the curve is flat, an affine line. Training pairs are placed at equal arclength-cell spacing, so the spacing control retains its geometric meaning as the curve bends. Reach is the radius of a neighborhood in which each location has a unique nearest point on the curve; it describes the geometric room available for local averaging.</p><p>The manifold analysis bounds the endpoint tube radius by <span class="formula">ε₀ = C<sub>loc</sub> mσ<sub>min</sub>² / (2τ)</span> under its posterior-localization, contraction, and landscape assumptions. Thus the second live ratio is only the geometric factor in <span class="formula">ε₀ / ℓ = (C<sub>loc</sub>m/2) · σ<sub>min</sub>²/(τℓ)</span>. The local constant and theorem assumptions have not been certified by these sliders; a small ratio alone supplies no guarantee. The numerical preview instead reports the trajectories actually computed for this finite cloud.</p><p>We evaluate the exact <span class="formula">σ²</span>-weighted Gaussian mixture in three ambient dimensions, with 32 logarithmically spaced scales and <span class="formula">σ<sub>max</sub> = 3</span>. The plot and starts lie in the invariant plane <span class="formula">x₃ = 0</span>. These illustrative initializations are not samples from the full three-dimensional Gaussian initialization used in distributional theorems.</p><p>The displayed contributions are the <strong>drift weights</strong> <span class="formula">q<sub>j</sub>(x) = ∑<sub>i</sub> w̃<sub>ij</sub>(x)</span>, with <span class="formula">w̃<sub>ij</sub> ∝ 𝒩<sub>3</sub>(x; μ<sub>j</sub>, σ<sub>i</sub>²I)</span>. They satisfy <span class="formula">s(x) = β(x)(∑<sub>j</sub> q<sub>j</sub>(x)μ<sub>j</sub> − x)</span>. Effective contributors are <span class="formula">N<sub>eff</sub> = 1/∑<sub>j</sub>q<sub>j</sub>²</span>; all weights enter this statistic.</p><p>Ascent uses the normalized update <span class="formula">x ← x + 0.35(μ̄(x) − x)</span>, until the barycentric residual is at most 10<sup>−6</sup>ℓ or 1200 updates are reached. The update has an exact-mixture ascent guarantee; it is not a time-dependent diffusion sampler. Moving the query inspects the score without changing the ensemble starts.</p><p>For a resolved numerical outcome, <strong>near a training point</strong> means training distance &lt; ℓ/12. Otherwise <strong>between samples, near the curve</strong> means normal distance ≤ ℓ/10. A larger normal distance is marked <strong>away from the curve</strong>. Unresolved trajectories remain <strong>still refining</strong>. These thresholds are visible-resolution proxies, not definitions or proofs of exact memorization or generalization. A finite empirical model can still send trajectories to isolated destinations; outputs between training observations do not by themselves recover a continuous population. More curvature can increase the normal bias of an average; larger reach gives more room for smoothing under the paper's other assumptions.</p><p id="model-details"></p></div></details>
+    <footer class="figure-footer"><span>Exact analytic mixture · finite empirical training cloud</span><button type="button" id="reset-button">Reset the figure</button></footer>
+  </main>
+  <script>
+/* Exact Gaussian-mixture mathematics for the interactive research essay.
+ * No dependencies; safe to load from file:// and in a browser worker.
+ *
+ * API (window.GaussianLandscapeMath, or require(...) in Node):
+ *   prepare({d=2,sigmaMin=.22,sigmaMax=1.3,nScales=32,centers=[[0,0]],sigmas?})
+ *     -> immutable cached configuration. Explicit sigmas override the schedule.
+ *   evaluate(x,y,prepared)
+ *     -> {logDensity,score:[sx,sy],beta,barycenter:[mx,my],
+ *         centerResponsibilities:[...],isFinite}
+ *   step([x,y],prepared,eta,mode='raw'|'normalized')
+ *     -> {point,before,after,deltaLogDensity,isFinite}
+ *   geometricScales(min,max,n), logGamma(z), radialMass(r,sigma,d),
+ *   logRadialMass(r,sigma,d), ambientRelative(r,sigma), shellSummary(sigma,d),
+ *   singleCenterStability(prepared), singleCenterRadialMass(r,prepared).
+ *
+ * The displayed x/y coordinates lie in an invariant two-dimensional slice:
+ * all centers and the other d-2 sample coordinates are zero off this plane.
+ * Evaluated height is the FULL d-dimensional ambient density on that slice,
+ * not a 2D marginal or a radial probability density. The exact target is
+ * p_MN=(M sum_i sigma_i^2)^-1 sum_j,i sigma_i^2 N_d(x;mu_j,sigma_i^2 I).
+ * No trajectory clipping or monotonicity correction is performed here.
+ */
+(function attach(root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.GaussianLandscapeMath = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function makeAPI() {
+  'use strict';
+  const LOG_TWO_PI = Math.log(2 * Math.PI);
+  const LANCZOS = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
+  ];
+
+  function finitePositive(value, name) {
+    if (!Number.isFinite(value) || value <= 0) throw new RangeError(name + ' must be finite and positive');
+    return value;
+  }
+
+  function dimension(value) {
+    if (!Number.isInteger(value) || value < 2) throw new RangeError('d must be an integer at least 2');
+    return value;
+  }
+
+  function logGamma(z) {
+    finitePositive(z, 'logGamma argument');
+    if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
+    z -= 1;
+    let x = LANCZOS[0];
+    for (let i = 1; i < LANCZOS.length; i++) x += LANCZOS[i] / (z + i);
+    const t = z + 7.5;
+    return 0.5 * LOG_TWO_PI + (z + 0.5) * Math.log(t) - t + Math.log(x);
+  }
+
+  function geometricScales(min, max, count) {
+    finitePositive(min, 'sigmaMin'); finitePositive(max, 'sigmaMax');
+    if (max < min) throw new RangeError('sigmaMax must be at least sigmaMin');
+    if (!Number.isInteger(count) || count < 1 || count > 4096) throw new RangeError('nScales must be an integer from 1 to 4096');
+    if (count === 1) return [min];
+    const width = Math.log(max / min);
+    const result = Array.from({length:count}, (_, i) => min * Math.exp(width * i / (count - 1)));
+    result[0] = min; result[result.length - 1] = max;
+    return result;
+  }
+
+  function prepare(input) {
+    input = input || {};
+    const d = dimension(input.d === undefined ? 2 : input.d);
+    const sourceCenters = input.centers === undefined ? [[0, 0]] : input.centers;
+    if (!Array.isArray(sourceCenters) || !sourceCenters.length) throw new RangeError('at least one center is required');
+    const centers = sourceCenters.map((c) => {
+      const x = Array.isArray(c) ? c[0] : c.x;
+      const y = Array.isArray(c) ? c[1] : c.y;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) throw new RangeError('each center needs finite x and y coordinates');
+      return Object.freeze([x, y]);
+    });
+    const sigmas = input.sigmas === undefined
+      ? geometricScales(input.sigmaMin === undefined ? 0.22 : input.sigmaMin,
+          input.sigmaMax === undefined ? 1.3 : input.sigmaMax,
+          input.nScales === undefined ? 32 : input.nScales)
+      : Array.from(input.sigmas);
+    if (!sigmas.length) throw new RangeError('at least one noise scale is required');
+    sigmas.forEach(s => finitePositive(s, 'sigma'));
+    const sumVariance = sigmas.reduce((sum, s) => sum + s * s, 0);
+    if (!Number.isFinite(sumVariance)) throw new RangeError('noise variances overflow');
+    const invVariances = sigmas.map(s => 1 / (s * s));
+    if (invVariances.some(v => !Number.isFinite(v))) throw new RangeError('noise precision overflows');
+    return Object.freeze({
+      d,
+      centers: Object.freeze(centers),
+      sigmas: Object.freeze(sigmas),
+      sigmaMin: Math.min.apply(null, sigmas),
+      sigmaMax: Math.max.apply(null, sigmas),
+      nScales: sigmas.length,
+      invVariances: Object.freeze(invVariances),
+      logCoefficients: Object.freeze(sigmas.map(s => (2 - d) * Math.log(s))),
+      logNormalizer: Math.log(centers.length * sumVariance) + 0.5 * d * LOG_TWO_PI,
+      sumVariance,
+      _gaussianLandscapePrepared: true
+    });
+  }
+
+  function invalidEvaluation(count) {
+    return {logDensity:-Infinity, score:[NaN,NaN], beta:NaN,
+      barycenter:[NaN,NaN], centerResponsibilities:Array(count).fill(0), isFinite:false};
+  }
+
+  function evaluate(x, y, config) {
+    if (!config || !config._gaussianLandscapePrepared) throw new TypeError('evaluate requires a prepare(...) configuration');
+    const centers = config.centers, n = centers.length;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return invalidEvaluation(n);
+    const distances = new Float64Array(n);
+    let maximum = -Infinity;
+    for (let j = 0; j < n; j++) {
+      const dx = x - centers[j][0], dy = y - centers[j][1];
+      const r2 = dx * dx + dy * dy;
+      distances[j] = r2;
+      for (let i = 0; i < config.nScales; i++) {
+        const term = config.logCoefficients[i] - 0.5 * r2 * config.invVariances[i];
+        if (term > maximum) maximum = term;
+      }
+    }
+    if (!Number.isFinite(maximum)) return invalidEvaluation(n);
+    let sum = 0, precisionSum = 0, baryX = 0, baryY = 0;
+    const centerResponsibilities = new Array(n).fill(0);
+    for (let j = 0; j < n; j++) {
+      let centerMass = 0, centerPrecision = 0;
+      for (let i = 0; i < config.nScales; i++) {
+        const term = config.logCoefficients[i] - 0.5 * distances[j] * config.invVariances[i];
+        const relativeWeight = Math.exp(term - maximum);
+        centerMass += relativeWeight;
+        centerPrecision += relativeWeight * config.invVariances[i];
+      }
+      centerResponsibilities[j] = centerMass;
+      sum += centerMass;
+      precisionSum += centerPrecision;
+      baryX += centerPrecision * centers[j][0];
+      baryY += centerPrecision * centers[j][1];
+    }
+    const beta = precisionSum / sum;
+    baryX /= precisionSum; baryY /= precisionSum;
+    const score = [beta * (baryX - x), beta * (baryY - y)];
+    const logDensity = maximum + Math.log(sum) - config.logNormalizer;
+    for (let j = 0; j < n; j++) centerResponsibilities[j] /= sum;
+    const isFinite = Number.isFinite(logDensity) && Number.isFinite(beta)
+      && Number.isFinite(baryX) && Number.isFinite(baryY)
+      && Number.isFinite(score[0]) && Number.isFinite(score[1]);
+    return {logDensity, score, beta, barycenter:[baryX,baryY], centerResponsibilities, isFinite};
+  }
+
+  function step(point, config, eta, mode) {
+    if (!Number.isFinite(eta) || eta < 0) throw new RangeError('eta must be finite and nonnegative');
+    mode = mode || 'raw';
+    if (mode !== 'raw' && mode !== 'normalized') throw new RangeError('mode must be raw or normalized');
+    const before = evaluate(point[0], point[1], config);
+    const direction = mode === 'normalized'
+      ? [before.barycenter[0] - point[0], before.barycenter[1] - point[1]]
+      : before.score;
+    const next = [point[0] + eta * direction[0], point[1] + eta * direction[1]];
+    const after = evaluate(next[0], next[1], config);
+    const deltaLogDensity = after.logDensity - before.logDensity;
+    return {point:next, before, after, deltaLogDensity,
+      isFinite:before.isFinite && after.isFinite && Number.isFinite(deltaLogDensity)};
+  }
+
+  function logRadialMass(r, sigma, d) {
+    finitePositive(sigma, 'sigma'); dimension(d);
+    if (!Number.isFinite(r) || r < 0) return -Infinity;
+    if (r === 0) return -Infinity; // d>=2: the radial PDF is zero at the origin.
+    return (d - 1) * Math.log(r) - 0.5 * (r / sigma) * (r / sigma)
+      - (0.5 * d - 1) * Math.log(2) - logGamma(0.5 * d) - d * Math.log(sigma);
+  }
+
+  function radialMass(r, sigma, d) {
+    return Math.exp(logRadialMass(r, sigma, d));
+  }
+
+  function ambientRelative(r, sigma) {
+    finitePositive(sigma, 'sigma');
+    if (!Number.isFinite(r) || r < 0) return 0;
+    return Math.exp(-0.5 * (r / sigma) * (r / sigma));
+  }
+
+  function shellSummary(sigma, d) {
+    finitePositive(sigma, 'sigma'); dimension(d);
+    const mean = sigma * Math.sqrt(2) * Math.exp(logGamma(0.5 * (d + 1)) - logGamma(0.5 * d));
+    const variance = Math.max(0, d * sigma * sigma - mean * mean);
+    return {
+      d, sigma,
+      mode:sigma * Math.sqrt(d - 1), mean,
+      radiusApprox:sigma * Math.sqrt(d), standardDeviation:Math.sqrt(variance),
+      relativeWidth:Math.sqrt(variance) / mean,
+      log2VolumeDoubling:d, effectiveMassDoubling:4,
+      log2WeightedDensityDoubling:2 - d
+    };
+  }
+
+  function singleCenterStability(config) {
+    if (config.centers.length !== 1) throw new RangeError('the exact isotropic center threshold requires one center');
+    const center = config.centers[0], ev = evaluate(center[0], center[1], config);
+    return {betaAtCenter:ev.beta, localRawEulerLimit:2 / ev.beta,
+      conservativeRawEulerLimit:2 * config.sigmaMin * config.sigmaMin,
+      normalizedEulerLimit:2,
+      note:'Strict inequalities; the raw limit is local, at the single-center peak.'};
+  }
+
+  function singleCenterRadialMass(r, config) {
+    if (config.centers.length !== 1) throw new RangeError('radial symmetry requires one center');
+    let result = 0;
+    for (const sigma of config.sigmas) result += sigma * sigma * radialMass(r, sigma, config.d);
+    return result / config.sumVariance;
+  }
+
+  return Object.freeze({prepare, evaluate, step, geometricScales, logGamma,
+    logRadialMass, radialMass, ambientRelative, shellSummary,
+    singleCenterStability, singleCenterRadialMass});
+});
+
+</script>
+  <script>
+/* Exact finite-mixture mechanics for the local-manifold explorable.
+ * Requires GaussianLandscapeMath (../interactive/landscape-math.js).
+ * All 82 centers lie on (u, kappa*u*u/2) in an invariant 2D slice of R^3.
+ * The reference curve is the whole parabola, not a fitted curve through an
+ * output. kappa is its curvature AT THE VERTEX; curvature decreases away.
+ * A fixed log-spaced noise grid has sigmaMax=3 by default. The empirical
+ * mixture uses sigma^2 weights. Finite numerical outputs are not a theorem
+ * of population generalization; tolerances below are explicit diagnostics.
+ *
+ * prepare({curvature:.1,spacing:.8,sigmaMin:.2,sigmaMax:3,nScales:32,d:3})
+ * evaluate(x,y,cfg) -> exact score, beta, barycenter, q/driftWeights,
+ *   densityResponsibilities, topShare, effectiveContributors, logDensity.
+ * pointAt(s,cfg) -> [x,y] at signed arclength s from the vertex.
+ * project([x,y],cfg) -> {point,u,s,distance,signedDistance,normal,tie,curvature}.
+ * diagnose(point,cfg,tolerance?) -> distance and contributor diagnostics.
+ * simulate(start,cfg,{eta:.35,maxSteps:1200,tolerance:1e-6*spacing}) ->
+ *   {points:[{point,logDensity,residual,trainingDistance,normalError,
+ *             topShare,effectiveContributors}],endpoint,converged,residual,
+ *    updates,minimumLogDensityIncrement,diagnostics,tolerance,eta}.
+ */
+(function attach(root,factory){
+  'use strict';
+  const G=typeof module==='object'&&module.exports?require('../interactive/landscape-math.js'):root.GaussianLandscapeMath;
+  const api=factory(G);
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  root.ManifoldMath=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function makeAPI(G){
+  'use strict';
+  if(!G)throw new Error('GaussianLandscapeMath must be loaded first');
+
+  function arcLength(u,kappa){
+    if(Math.abs(kappa)<1e-10)return u;
+    const v=kappa*u;
+    return .5*(u*Math.sqrt(1+v*v)+Math.asinh(v)/kappa);
+  }
+  function parameterAt(s,kappa){
+    if(Math.abs(kappa)<1e-10)return s;
+    let u=Math.sign(s)*Math.min(Math.abs(s),Math.sqrt(2*Math.abs(s)/kappa));
+    for(let n=0;n<24;n++){
+      const residual=arcLength(u,kappa)-s;
+      const delta=residual/Math.sqrt(1+kappa*kappa*u*u);
+      u-=delta;if(Math.abs(delta)<1e-13*(1+Math.abs(u)))break;
+    }
+    return u;
+  }
+  function pointAt(s,cfg){const u=parameterAt(s,cfg.curvature);return [u,.5*cfg.curvature*u*u];}
+  function prepare(input){
+    input=input||{};
+    const curvature=input.curvature===undefined?.1:Number(input.curvature),spacing=input.spacing===undefined?.8:Number(input.spacing);
+    if(!Number.isFinite(curvature)||curvature<0||curvature>10)throw new RangeError('curvature must be between 0 and 10');
+    if(!Number.isFinite(spacing)||spacing<=0)throw new RangeError('spacing must be positive');
+    const halfCount=input.halfCount===undefined?20:input.halfCount;
+    if(!Number.isInteger(halfCount)||halfCount<2||halfCount>200)throw new RangeError('halfCount must be an integer from 2 to 200');
+    const centers=[],centerMeta=[];
+    for(let cell=-halfCount;cell<=halfCount;cell++)for(const side of [-1,1]){
+      const s=spacing*(cell+side/6),u=parameterAt(s,curvature);
+      centers.push([u,.5*curvature*u*u]);centerMeta.push(Object.freeze({s,u,cell,side}));
+    }
+    const base=G.prepare({d:input.d===undefined?3:input.d,sigmaMin:input.sigmaMin===undefined?.2:input.sigmaMin,
+      sigmaMax:input.sigmaMax===undefined?3:input.sigmaMax,nScales:input.nScales===undefined?32:input.nScales,centers});
+    return Object.freeze({...base,curvature,spacing,halfCount,reach:curvature>0?1/curvature:Infinity,
+      centerMeta:Object.freeze(centerMeta),_manifoldPrepared:true});
+  }
+  function invalid(n){return {logDensity:-Infinity,score:[NaN,NaN],beta:NaN,barycenter:[NaN,NaN],q:Array(n).fill(0),driftWeights:Array(n).fill(0),densityResponsibilities:Array(n).fill(0),topShare:NaN,topIndex:-1,effectiveContributors:NaN,isFinite:false};}
+  function evaluate(x,y,cfg){
+    if(!cfg||!cfg._manifoldPrepared)throw new TypeError('Expected a prepared manifold configuration');
+    const centers=cfg.centers,n=centers.length;
+    if(!Number.isFinite(x)||!Number.isFinite(y))return invalid(n);
+    const distances=new Float64Array(n);let maximum=-Infinity;
+    for(let j=0;j<n;j++){
+      const dx=x-centers[j][0],dy=y-centers[j][1],r2=dx*dx+dy*dy;distances[j]=r2;
+      for(let i=0;i<cfg.nScales;i++)maximum=Math.max(maximum,cfg.logCoefficients[i]-.5*r2*cfg.invVariances[i]);
+    }
+    if(!Number.isFinite(maximum))return invalid(n);
+    const q=new Array(n),densityResponsibilities=new Array(n);let mass=0,precision=0,bx=0,by=0;
+    for(let j=0;j<n;j++){
+      let mj=0,pj=0;
+      for(let i=0;i<cfg.nScales;i++){
+        const a=Math.exp(cfg.logCoefficients[i]-.5*distances[j]*cfg.invVariances[i]-maximum);
+        mj+=a;pj+=a*cfg.invVariances[i];
+      }
+      q[j]=pj;densityResponsibilities[j]=mj;mass+=mj;precision+=pj;bx+=pj*centers[j][0];by+=pj*centers[j][1];
+    }
+    bx/=precision;by/=precision;const beta=precision/mass;let concentration=0,topShare=-Infinity,topIndex=-1;
+    for(let j=0;j<n;j++){
+      q[j]/=precision;densityResponsibilities[j]/=mass;concentration+=q[j]*q[j];
+      if(q[j]>topShare){topShare=q[j];topIndex=j;}
+    }
+    const score=[beta*(bx-x),beta*(by-y)],logDensity=maximum+Math.log(mass)-cfg.logNormalizer;
+    const isFinite=Number.isFinite(logDensity)&&Number.isFinite(beta)&&score.every(Number.isFinite);
+    return {logDensity,score,beta,barycenter:[bx,by],q,driftWeights:q,densityResponsibilities,
+      centerResponsibilities:densityResponsibilities,topShare,topIndex,effectiveContributors:1/concentration,isFinite};
+  }
+  function logDensity(x,y,cfg){
+    let maximum=-Infinity,sum=0;const terms=[];
+    for(const center of cfg.centers){const dx=x-center[0],dy=y-center[1],r2=dx*dx+dy*dy;
+      for(let i=0;i<cfg.nScales;i++){const t=cfg.logCoefficients[i]-.5*r2*cfg.invVariances[i];terms.push(t);maximum=Math.max(maximum,t);}}
+    for(const t of terms)sum+=Math.exp(t-maximum);
+    return maximum+Math.log(sum)-cfg.logNormalizer;
+  }
+  function cubicRoots(p,q){
+    const discriminant=q*q/4+p*p*p/27,scale=1+Math.abs(q*q/4)+Math.abs(p*p*p/27),roots=[];
+    if(p<0&&discriminant<=1e-14*scale){
+      const r=2*Math.sqrt(-p/3),arg=Math.max(-1,Math.min(1,(3*q/(2*p))*Math.sqrt(-3/p))),theta=Math.acos(arg)/3;
+      for(let j=0;j<3;j++)roots.push(r*Math.cos(theta+2*Math.PI*j/3));
+    }else{
+      const sd=Math.sqrt(Math.max(0,discriminant));roots.push(Math.cbrt(-q/2+sd)+Math.cbrt(-q/2-sd));
+    }
+    return roots;
+  }
+  function project(point,cfg){
+    const x=point[0],y=point[1],k=cfg.curvature;
+    if(!Number.isFinite(x)||!Number.isFinite(y))return {point:[NaN,NaN],u:NaN,s:NaN,distance:Infinity,signedDistance:NaN,normal:[NaN,NaN],tie:false,curvature:NaN};
+    if(k<1e-10)return {point:[x,0],u:x,s:x,distance:Math.abs(y),signedDistance:y,normal:[0,1],tie:false,curvature:0};
+    // Critical points of squared Euclidean distance solve
+    // (k^2/2)u^3 + (1-k*y)u - x = 0. Compare ALL real roots.
+    const p=2*(1-k*y)/(k*k),q=-2*x/(k*k),roots=cubicRoots(p,q);
+    const candidates=[];
+    for(let u of roots){
+      for(let n=0;n<5;n++){const f=.5*k*k*u*u*u+(1-k*y)*u-x,df=1-k*y+1.5*k*k*u*u;if(Math.abs(df)<1e-13)break;const du=f/df;u-=du;if(Math.abs(du)<1e-13*(1+Math.abs(u)))break;}
+      const yy=.5*k*u*u,d2=(x-u)*(x-u)+(y-yy)*(y-yy);candidates.push({u,yy,d2});
+    }
+    candidates.sort((a,b)=>a.d2-b.d2||a.u-b.u);const best=candidates[0];
+    const tie=candidates.slice(1).some(c=>Math.abs(c.u-best.u)>1e-7&&Math.abs(c.d2-best.d2)<1e-10*(1+best.d2));
+    const norm=Math.sqrt(1+k*k*best.u*best.u),normal=[-k*best.u/norm,1/norm];
+    return {point:[best.u,best.yy],u:best.u,s:arcLength(best.u,k),distance:Math.sqrt(Math.max(0,best.d2)),
+      signedDistance:(x-best.u)*normal[0]+(y-best.yy)*normal[1],normal,tie,curvature:k/Math.pow(1+k*k*best.u*best.u,1.5)};
+  }
+  function nearestTraining(point,cfg){
+    let distance=Infinity,index=-1;
+    for(let j=0;j<cfg.centers.length;j++){const c=cfg.centers[j],r=Math.hypot(point[0]-c[0],point[1]-c[1]);if(r<distance){distance=r;index=j;}}
+    return {distance,index,point:cfg.centers[index]};
+  }
+  function diagnose(point,cfg,tolerance){
+    const ev=evaluate(...point,cfg),projection=project(point,cfg),training=nearestTraining(point,cfg);
+    const residual=Math.hypot(ev.barycenter[0]-point[0],ev.barycenter[1]-point[1]);
+    const margin=cfg.spacing/12,manifoldMargin=cfg.spacing/10,tol=tolerance===undefined?1e-6*cfg.spacing:tolerance;
+    return {...ev,residual,trainingDistance:training.distance,trainingIndex:training.index,normalError:projection.distance,
+      projection,cell:Math.round(projection.s/cfg.spacing),trainingRatio:training.distance/cfg.spacing,
+      normalRatio:projection.distance/cfg.spacing,margin,trainingMargin:margin,manifoldMargin,nearTraining:training.distance<margin,
+      nearManifold:projection.distance<=manifoldMargin,stationary:residual<=tol,
+      diagnostic:'Near training uses distance < ell/12; near the curve uses distance <= ell/10. These are illustrative diagnostics, not memorization or generalization guarantees.'};
+  }
+  function simulate(start,cfg,options){
+    options=options||{};const eta=options.eta===undefined?.35:options.eta,maxSteps=options.maxSteps===undefined?1200:options.maxSteps;
+    const tolerance=options.tolerance===undefined?1e-6*cfg.spacing:options.tolerance;
+    if(!(eta>0&&eta<2))throw new RangeError('This explorable uses normalized Euler with 0 < eta < 2');
+    if(!Number.isInteger(maxSteps)||maxSteps<0||maxSteps>20000)throw new RangeError('maxSteps must be an integer from 0 to 20000');
+    let point=start.slice(),ev=evaluate(...point,cfg),residual=Math.hypot(ev.barycenter[0]-point[0],ev.barycenter[1]-point[1]);
+    let minimumLogDensityIncrement=Infinity,converged=residual<=tolerance,updates=0;const points=[];
+    function record(delta){const proj=project(point,cfg),tr=nearestTraining(point,cfg);points.push({point:point.slice(),logDensity:ev.logDensity,residual,
+      delta,trainingDistance:tr.distance,normalError:proj.distance,topShare:ev.topShare,effectiveContributors:ev.effectiveContributors});}
+    record(0);
+    while(updates<maxSteps&&!converged){
+      const next=[point[0]+eta*(ev.barycenter[0]-point[0]),point[1]+eta*(ev.barycenter[1]-point[1])];
+      const after=evaluate(...next,cfg),delta=after.logDensity-ev.logDensity;minimumLogDensityIncrement=Math.min(minimumLogDensityIncrement,delta);
+      point=next;ev=after;residual=Math.hypot(ev.barycenter[0]-point[0],ev.barycenter[1]-point[1]);updates++;record(delta);
+      if(!ev.isFinite)break;converged=residual<=tolerance;
+    }
+    if(!Number.isFinite(minimumLogDensityIncrement))minimumLogDensityIncrement=0;
+    const diagnostics=diagnose(point,cfg,tolerance);
+    return {start:start.slice(),points,endpoint:point.slice(),converged,residual,updates,minimumLogDensityIncrement,diagnostics,tolerance,eta};
+  }
+  const presets=Object.freeze({capture:Object.freeze({curvature:.1,spacing:.8,sigmaMin:.04}),
+    shared:Object.freeze({curvature:.1,spacing:.8,sigmaMin:.2}),
+    bias:Object.freeze({curvature:.6,spacing:.8,sigmaMin:1}),
+    positiveFloor:Object.freeze({curvature:.02,spacing:1.3,sigmaMin:.5}),
+    curvedFloor:Object.freeze({curvature:.8,spacing:1.3,sigmaMin:.5})});
+  return Object.freeze({prepare,evaluate,logDensity,arcLength,parameterAt,pointAt,project,nearestTraining,diagnose,simulate,presets});
+});
+
+</script>
+  <script>
+(function () {
+  'use strict';
+  const M=window.ManifoldMath,$=id=>document.getElementById(id);
+  const embedded=window.self!==window.top||new URLSearchParams(window.location.search).get('embedded')==='1';
+  if(embedded)document.body.dataset.embedded='true';
+  const C={bg:'#fbfaf7',ink:'#181a1b',muted:'#3d4348',rule:'#c4d0d5',blue:'#315f7f',orange:'#b45c2d',green:'#356c55',gray:'#667b86'};
+  const defaults={curvature:.1,spacing:.8,sigmaMin:.2,iteration:0,probe:[.15,.045],showField:true,detail:false,detailCenter:[.15,.045],followRefinement:true};
+  const starts=Array.from({length:15},(_,i)=>[-1.65+i*3.3/14+.013,.55+.19*Math.sin(i*1.7)+.12*Math.cos(i*.7)]);
+  const bounds={xmin:-3.2,xmax:3.2,ymin:-.9,ymax:3.0};
+  const canvases=['geometry-canvas','weights-canvas','outcomes-canvas'].map($);
+  let state={...defaults,probe:defaults.probe.slice()},config,trajectories=[],field=[],pending=false,playing=false,maxIteration=1200,lastHeight=0,probeEvaluation,currentDiagnostics=[];
+  let normalAxisRange=null,normalAxisTarget=.01,normalAxisBaseline=1,zoomAnimating=false;
+  let previewMetrics=null,parameterComparison=null,parameterFeedback=null;
+  let playbackTimer=null,zoomTimer=null,playRequested=false,playbackStart=0,playbackStartMass=0,playbackDuration=4800;
+  let playbackMass=[0],visualEndIteration=0,probeCacheKey='',initialProjections=[],finalProjections=[];
+  const frameInterval=33;
+  function clearPlaybackTimer(){if(playbackTimer!==null){clearTimeout(playbackTimer);playbackTimer=null;}}
+  function scheduleZoom(){if(!zoomAnimating||playing||zoomTimer!==null)return;zoomTimer=setTimeout(()=>{zoomTimer=null;drawOutcomes();scheduleZoom();},frameInterval);}
+  function buildPlaybackMass(){
+    // Time follows actual visible movement, rather than spending equal time
+    // on hundreds of nearly stationary numerical refinement steps.
+    playbackMass=[0];
+    for(let n=1;n<=maxIteration;n++){
+      let movement=0;
+      for(const t of trajectories){const a=t.points[Math.min(n-1,t.points.length-1)],b=t.points[Math.min(n,t.points.length-1)];
+        const world=Math.hypot(b.point[0]-a.point[0],b.point[1]-a.point[1])/state.spacing;
+        const normal=Math.abs(b.normalError-a.normalError)/Math.max(.01*state.spacing,a.normalError);
+        movement=Math.max(movement,world,.15*normal);}
+      playbackMass.push(playbackMass[n-1]+Math.max(1e-8,movement));
+    }
+    const threshold=.995*playbackMass[maxIteration];visualEndIteration=playbackMass.findIndex(v=>v>=threshold);
+    if(visualEndIteration<0)visualEndIteration=maxIteration;
+  }
+  function iterationAtMass(value){let lo=0,hi=maxIteration;while(lo<hi){const mid=(lo+hi+1)>>1;if(playbackMass[mid]<=value)lo=mid;else hi=mid-1;}return lo;}
+  function startPlayback(){
+    if(pending){playRequested=true;$('play-button').textContent='Computing…';return;}
+    playRequested=false;clearPlaybackTimer();if(zoomTimer!==null){clearTimeout(zoomTimer);zoomTimer=null;}
+    if(state.iteration>=maxIteration)state.iteration=0;
+    playing=true;
+    // A first real update is painted in the click handler, before any timer.
+    setIteration(Math.min(maxIteration,state.iteration+1));
+    if(state.iteration>=maxIteration){stop();return;}
+    playbackStart=performance.now();playbackStartMass=playbackMass[state.iteration];
+    playbackDuration=Math.min(4800,Math.max(1800,1800+70*Math.max(0,visualEndIteration-state.iteration)));
+    playbackTimer=setTimeout(animate,frameInterval);
+  }
+  function animate(){
+    playbackTimer=null;if(!playing)return;
+    const progress=Math.min(1,Math.max(0,(performance.now()-playbackStart)/playbackDuration));
+    const mass=playbackStartMass+progress*(playbackMass[maxIteration]-playbackStartMass);
+    const next=progress>=1?maxIteration:Math.max(state.iteration,iterationAtMass(mass));
+    if(next!==state.iteration)setIteration(next);else if(zoomAnimating)drawOutcomes();
+    if(progress>=1){stop();return;}playbackTimer=setTimeout(animate,frameInterval);
+  }
+  function reportHeight(){if(!embedded)return;const height=Math.ceil(document.body.getBoundingClientRect().height+24);if(Math.abs(height-lastHeight)>1){lastHeight=height;parent.postMessage({type:'manifold-landscape-height',height},'*');}}
+  function format(v,n=3){return Number.isFinite(v)?v.toFixed(n):'—';}
+  function compact(v){if(!Number.isFinite(v))return '—';return Math.abs(v)<.001&&v!==0?v.toExponential(1):v.toFixed(3);}
+  function sliderToSigma(v){return .03*Math.pow(1/.03,v/1000);}
+  function sigmaToSlider(v){return Math.round(1000*Math.log(v/.03)/Math.log(1/.03));}
+  function median(values){const a=values.filter(Number.isFinite).sort((a,b)=>a-b);if(!a.length)return NaN;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;}
+  function precise(v){return Number.isFinite(v)?Number(v.toPrecision(3)).toString():'—';}
+  function tolerance(){return 1e-6*state.spacing;}
+  function updateTheoryRatios(){
+    $('smoothing-ratio').textContent=precise(state.sigmaMin/state.spacing);
+    $('curvature-ratio').textContent=precise(state.sigmaMin*state.sigmaMin*state.curvature/state.spacing);
+  }
+  function summarizePreview(){
+    const end=trajectories.map(t=>infoAt(t,t.points.length-1)),counts={capture:0,between:0,away:0,refining:0},cells=new Set();
+    end.forEach(d=>{counts[d.category]++;if(d.resolved&&!d.projection.tie)cells.add(d.cell);});
+    return {counts,resolved:end.length-counts.refining,total:end.length,occupiedCells:cells.size,
+      maximumResidual:Math.max(...end.map(d=>d.residual)),maximumRelativeResidual:Math.max(...end.map(d=>d.residual))/state.spacing,
+      maximumUpdates:Math.max(...trajectories.map(t=>t.updates)),medianNormalError:median(end.map(d=>d.normalError)),
+      medianTrainingDistance:median(end.map(d=>d.trainingDistance))};
+  }
+  function updateComputedFeedback(){
+    if(!previewMetrics)return;
+    const p=previewMetrics,c=p.counts;
+    $('computed-preview').innerHTML='<strong>Computed numerical preview</strong> · '+p.resolved+'/'+p.total+' resolved after at most '+p.maximumUpdates+' updates: '+c.capture+' near training points; '+c.between+' between samples and near the curve; '+c.away+' away from the curve. '+p.occupiedCells+' resolved cells.'+(c.refining?' '+c.refining+' still refining; largest remaining pull / ℓ = '+precise(p.maximumRelativeResidual)+'.':'')+' This preview is independent of the playback step below.';
+    $('parameter-feedback').hidden=!parameterFeedback;
+    if(parameterFeedback){
+      const f=parameterFeedback;
+      $('parameter-feedback').textContent='At the same query, largest weight '+format(100*f.beforeTopShare,1)+'% → '+format(100*f.afterTopShare,1)+'%; effective contributors '+format(f.beforeContributors,2)+' → '+format(f.afterContributors,2)+'.'+(f.curvatureChanged?' Median normal distance of the computed outputs: '+precise(f.beforeMedianNormal)+' → '+precise(f.afterMedianNormal)+'.':'');
+    }
+  }
+  function syncControls(){
+    $('curvature').value=state.curvature;$('curvature-value').value=format(state.curvature,2);
+    $('spacing').value=state.spacing;$('spacing-value').value=format(state.spacing,2);
+    $('noise-floor').value=sigmaToSlider(state.sigmaMin);$('noise-floor-value').value=format(state.sigmaMin,2);
+    $('iteration').max=maxIteration;$('iteration').value=state.iteration;$('iteration-value').value=state.iteration;$('iteration-max').textContent=maxIteration;
+    $('show-field').checked=state.showField;$('play-button').textContent=playing?'Pause':playRequested?'Computing…':'Play';$('play-button').setAttribute('aria-pressed',String(playing));
+    $('follow-refinement').checked=state.followRefinement;
+    $('zoom-button').textContent=state.detail?'Show the full patch':'Zoom local detail';
+    updateTheoryRatios();
+  }
+  function canvasContext(canvas){
+    const box=canvas.getBoundingClientRect();if(box.width<80||box.height<80)return null;
+    const dpr=Math.min(3,window.devicePixelRatio||1),w=box.width,h=box.height;
+    if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle=C.bg;ctx.fillRect(0,0,w,h);return{ctx,w,h};
+  }
+  function line(ctx,points,color,width=1,dash){if(points.length<2)return;ctx.beginPath();ctx.moveTo(...points[0]);for(let i=1;i<points.length;i++)ctx.lineTo(...points[i]);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash||[]);ctx.stroke();ctx.setLineDash([]);}
+  function circle(ctx,p,r,color,stroke){if(!p.every(Number.isFinite)||r<0)return;ctx.beginPath();ctx.arc(p[0],p[1],r,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.3;ctx.stroke();}}
+  function diamond(ctx,p,r,color){ctx.beginPath();ctx.moveTo(p[0],p[1]-r);ctx.lineTo(p[0]+r,p[1]);ctx.lineTo(p[0],p[1]+r);ctx.lineTo(p[0]-r,p[1]);ctx.closePath();ctx.fillStyle=color;ctx.fill();}
+  function square(ctx,p,r,color,outline=C.bg){ctx.fillStyle=color;ctx.fillRect(p[0]-r,p[1]-r,r*2,r*2);ctx.strokeStyle=outline;ctx.lineWidth=1.2;ctx.strokeRect(p[0]-r,p[1]-r,r*2,r*2);}
+  function triangle(ctx,p,r,color,outline=C.bg,direction=1){ctx.beginPath();ctx.moveTo(p[0],p[1]-r*direction);ctx.lineTo(p[0]+r*.95,p[1]+r*.65*direction);ctx.lineTo(p[0]-r*.95,p[1]+r*.65*direction);ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.strokeStyle=outline;ctx.lineWidth=1.1;ctx.stroke();}
+  function initialMarker(ctx,p,r=3.5){line(ctx,[[p[0]-r,p[1]-r],[p[0]+r,p[1]+r]],'#627c8b',1.5);line(ctx,[[p[0]-r,p[1]+r],[p[0]+r,p[1]-r]],'#627c8b',1.5);}
+  function outcomeMarker(ctx,p,category,r=4.7){const color=categoryColor(category);if(category==='between')square(ctx,p,r,color);else if(category==='away')triangle(ctx,p,r+1,color);else if(category==='refining')circle(ctx,p,r,C.bg,color);else circle(ctx,p,r,color,C.bg);}
+  function text(ctx,value,x,y,color=C.muted,size=14,align='left'){ctx.font=size+'px "Segoe UI",Arial,sans-serif';ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(value,x,y);}
+  function pointLabels(ctx,items,T,obstacles){
+    const occupied=[],layouts=[],padding=4;
+    ctx.font='14px "Segoe UI",Arial,sans-serif';
+    const intersects=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+    for(const item of items){
+      const width=Math.ceil(ctx.measureText(item.label).width)+8,height=21,other=items.find(v=>v!==item)?.point??item.point;
+      const away=Math.atan2(item.point[1]-other[1],item.point[0]-other[0]);
+      let best=null;
+      for(const distance of[22,34,48,66])for(const offset of[0,Math.PI/4,-Math.PI/4,Math.PI/2,-Math.PI/2,Math.PI,3*Math.PI/4,-3*Math.PI/4]){
+        const angle=away+offset,cx=item.point[0]+distance*Math.cos(angle),cy=item.point[1]+distance*Math.sin(angle);
+        const box={x:Math.max(T.left+padding,Math.min(T.left+T.width-width-padding,cx-width/2)),y:Math.max(T.top+padding,Math.min(T.top+T.height-height-padding,cy-height/2)),w:width,h:height};
+        const expanded={x:box.x-3,y:box.y-3,w:box.w+6,h:box.h+6};
+        const markerHits=obstacles.reduce((n,p)=>n+(intersects(expanded,{x:p[0]-7,y:p[1]-7,w:14,h:14})?1:0),0);
+        const labelHits=occupied.reduce((n,b)=>n+(intersects(expanded,b)?1:0),0);
+        const cost=markerHits*10000+labelHits*100000+distance+Math.abs(offset)*2;
+        if(!best||cost<best.cost)best={...box,cost,item};
+      }
+      occupied.push(best);layouts.push(best);
+    }
+    // Leaders and paper-colored callouts keep labels distinct without moving
+    // the query, weighted average, or any of the computed training markers.
+    for(const box of layouts){const p=box.item.point,c=[box.x+box.w/2,box.y+box.h/2],dx=c[0]-p[0],dy=c[1]-p[1],length=Math.hypot(dx,dy);
+      if(length>12)line(ctx,[[p[0]+9*dx/length,p[1]+9*dy/length],c],'#7b8c95',1,[2,3]);
+      ctx.fillStyle=C.bg;ctx.fillRect(box.x,box.y,box.w,box.h);text(ctx,box.item.label,box.x+4,box.y+15,box.item.color,14);
+    }
+  }
+  function arrow(ctx,a,b,color,width=1){const len=Math.hypot(b[0]-a[0],b[1]-a[1]);if(len<.8)return;line(ctx,[a,b],color,width);const ux=(b[0]-a[0])/len,uy=(b[1]-a[1])/len,r=5;ctx.beginPath();ctx.moveTo(...b);ctx.lineTo(b[0]-r*ux+r*.45*uy,b[1]-r*uy-r*.45*ux);ctx.lineTo(b[0]-r*ux-r*.45*uy,b[1]-r*uy+r*.45*ux);ctx.closePath();ctx.fillStyle=color;ctx.fill();}
+  function activeBounds(){if(!state.detail)return bounds;const x=state.detailCenter[0],y=.5*state.curvature*x*x;return{xmin:x-1.5*state.spacing,xmax:x+1.5*state.spacing,ymin:y-.65*state.spacing,ymax:y+.65*state.spacing};}
+  function geometryTransform(w,h){
+    const B=activeBounds(),roomW=w-60,roomH=h-53,scale=Math.min(roomW/(B.xmax-B.xmin),roomH/(B.ymax-B.ymin));
+    const plotW=scale*(B.xmax-B.xmin),plotH=scale*(B.ymax-B.ymin),left=(w-plotW)/2,top=20;
+    return{left,top,width:plotW,height:plotH,scale,xy:p=>[left+(p[0]-B.xmin)*scale,top+(B.ymax-p[1])*scale],world:p=>[B.xmin+(p[0]-left)/scale,B.ymax-(p[1]-top)/scale]};
+  }
+  function infoAt(t,n){
+    const record=t.points[Math.min(n,t.points.length-1)],p=record.point,projection=M.project(p,config),resolved=record.residual<=tolerance()*1.001;
+    let category='refining';if(resolved){if(record.trainingDistance<state.spacing/12)category='capture';else if(record.normalError<=state.spacing/10)category='between';else category='away';}
+    return{...record,projection,category,resolved,cell:Math.round(projection.s/state.spacing),point:p};
+  }
+  function categoryColor(category){return category==='capture'?C.blue:category==='between'?C.green:category==='away'?C.orange:C.gray;}
+  function drawGeometry(){
+    const canvas=$('geometry-canvas'),width=canvas.getBoundingClientRect().width,B=activeBounds();
+    if(width>=80){const desired=Math.max(205,Math.min(480,(width-60)*(B.ymax-B.ymin)/(B.xmax-B.xmin)+60));if(Math.abs(canvas.getBoundingClientRect().height-desired)>1)canvas.style.height=desired+'px';}
+    const draw=canvasContext(canvas);if(!draw||!config)return;const{ctx,w,h}=draw,T=geometryTransform(w,h),xy=T.xy;
+    ctx.save();ctx.beginPath();ctx.rect(T.left,T.top,T.width,T.height);ctx.clip();
+    for(const x of [-3,-2,-1,0,1,2,3])line(ctx,[xy([x,B.ymin]),xy([x,B.ymax])],'#e7ebeb');
+    for(const y of [0,1,2,3])line(ctx,[xy([B.xmin,y]),xy([B.xmax,y])],'#e7ebeb');
+    const curve=[],upper=[],lower=[],tube=state.spacing/10;
+    for(let i=0;i<=220;i++){const u=B.xmin+(B.xmax-B.xmin)*i/220,y=.5*state.curvature*u*u,norm=Math.hypot(1,state.curvature*u),nx=-state.curvature*u/norm,ny=1/norm;curve.push(xy([u,y]));upper.push(xy([u+tube*nx,y+tube*ny]));lower.push(xy([u-tube*nx,y-tube*ny]));}
+    ctx.beginPath();ctx.moveTo(...upper[0]);upper.slice(1).forEach(p=>ctx.lineTo(...p));lower.reverse().forEach(p=>ctx.lineTo(...p));ctx.closePath();ctx.fillStyle='rgba(85,123,110,.08)';ctx.fill();
+    if(state.showField)for(const f of field){const len=Math.hypot(...f.score);if(len>.0001){const p=xy(f.point),l=10;arrow(ctx,[p[0]-f.score[0]/len*l*.4,p[1]+f.score[1]/len*l*.4],[p[0]+f.score[0]/len*l*.6,p[1]-f.score[1]/len*l*.6],'rgba(49,95,127,.40)',1.1);}}
+    line(ctx,curve,'#223c4d',2.4);
+    for(const t of trajectories){const end=Math.min(state.iteration,t.points.length-1),stride=Math.max(1,Math.floor(end/100)),path=[];for(let i=0;i<=end;i+=stride)path.push(xy(t.points[i].point));if(end%stride)path.push(xy(t.points[end].point));line(ctx,path,'rgba(84,112,128,.48)',1.25);initialMarker(ctx,xy(t.start));}
+    for(let j=0;j<config.centers.length;j++){
+      const p=config.centers[j],q=probeEvaluation.q[j];if(q>.0015)line(ctx,[xy(state.probe),xy(p)],'rgba(180,92,45,'+Math.min(.90,.22+.68*q/probeEvaluation.topShare)+')',.9+2.4*q/probeEvaluation.topShare);
+    }
+    for(let j=0;j<config.centers.length;j++){const q=probeEvaluation.q[j];square(ctx,xy(config.centers[j]),q>.03?4.5:3.3,q>.03?C.blue:'#708da0',C.bg);}
+    for(const diag of currentDiagnostics)outcomeMarker(ctx,xy(diag.point),diag.category,4.4);
+    const p=xy(state.probe),bar=xy(probeEvaluation.barycenter),projection=M.project(state.probe,config);
+    line(ctx,[p,xy(projection.point)],'#667d8a',1.4,[3,4]);arrow(ctx,p,bar,C.orange,2.6);diamond(ctx,bar,6.5,C.ink);circle(ctx,p,7.2,C.bg,C.orange);circle(ctx,p,2.7,C.orange);
+    const labelObstacles=[p,bar,...config.centers.map(xy),...currentDiagnostics.map(d=>xy(d.point)),...trajectories.map(t=>xy(t.start))];
+    const labels=[{label:'x',point:p,color:C.orange},{label:'μ̄',point:bar,color:C.ink}].filter(v=>v.point[0]>=T.left-.01&&v.point[0]<=T.left+T.width+.01&&v.point[1]>=T.top-.01&&v.point[1]<=T.top+T.height+.01);
+    pointLabels(ctx,labels,T,labelObstacles);
+    ctx.restore();ctx.strokeStyle=C.rule;ctx.lineWidth=1;ctx.strokeRect(T.left,T.top,T.width,T.height);
+    const xTicks=state.detail?[B.xmin,(B.xmin+B.xmax)/2,B.xmax]:[-3,0,3],yTicks=state.detail?[B.ymin,(B.ymin+B.ymax)/2,B.ymax]:[0,1,2,3];
+    for(const x of xTicks){const p=xy([x,B.ymin]);text(ctx,state.detail?format(x,1):String(x),p[0],p[1]+18,C.muted,14,'center');}
+    for(const y of yTicks){const p=xy([B.xmin,y]);text(ctx,state.detail?format(y,1):String(y),p[0]-10,p[1]+4,C.muted,14,'right');}
+    text(ctx,'x₁',T.left+T.width,T.top+T.height+35,C.muted,14,'right');text(ctx,'x₂',T.left+5,T.top-7,C.muted,14);
+    text(ctx,'Reference curve',T.left+10,T.top+19,C.ink,14);
+  }
+  function drawWeights(){
+    const draw=canvasContext($('weights-canvas'));if(!draw||!probeEvaluation)return;const{ctx,w,h}=draw,indices=probeEvaluation.q.map((q,j)=>({q,j})).sort((a,b)=>b.q-a.q).slice(0,8);
+    const left=42,right=w-12,top=22,bottom=h-42,barW=(right-left)/indices.length,max=Math.max(.25,indices[0].q);
+    for(const value of [0,max/2,max]){const y=bottom-(bottom-top)*value/max;line(ctx,[[left,y],[right,y]],'#e6eaea');text(ctx,Math.round(value*100)+'%',left-7,y+4,C.muted,14,'right');}
+    indices.forEach((v,k)=>{const x=left+k*barW+barW*.14,bw=barW*.72,hh=(bottom-top)*v.q/max;ctx.fillStyle=k===0?C.orange:'#6388a1';ctx.fillRect(x,bottom-hh,bw,hh);text(ctx,String(v.j+1),x+bw/2,bottom+21,C.muted,14,'center');});
+    text(ctx,'Training-point index',right,h-4,C.muted,14,'right');
+    const shown=indices.reduce((a,v)=>a+v.q,0);$('weights-note').textContent='The largest 8 of 82 weights qⱼ in the local average; '+format(100*(1-shown),1)+'% remains outside these bars. The effective count is the equivalent number of equally weighted centers, using all 82.';
+  }
+  function drawOutcomes(){
+    const draw=canvasContext($('outcomes-canvas'));if(!draw||!config)return;const{ctx,w,h}=draw;
+    const initial=initialProjections,final=finalProjections;
+    const coords=initial.concat(final).map(p=>p.s/state.spacing),lo=Math.floor(Math.min(...coords)-.7),hi=Math.ceil(Math.max(...coords)+.7);
+    const currentExtent=Math.max(0,...currentDiagnostics.map(p=>Math.abs(p.projection.signedDistance/state.spacing))),needed=Math.max(.01,currentExtent*1.18);
+    if(normalAxisRange===null){normalAxisRange=needed;normalAxisBaseline=needed;}
+    normalAxisTarget=state.followRefinement?needed:Math.max(normalAxisRange,needed);
+    // Expansion is immediate so no current output is hidden. Zooming inward
+    // is eased in log-scale, preserving every plotted data coordinate.
+    if(normalAxisTarget>=normalAxisRange)normalAxisRange=normalAxisTarget;
+    else normalAxisRange=Math.exp(.78*Math.log(normalAxisRange)+.22*Math.log(normalAxisTarget));
+    if(Math.abs(Math.log(normalAxisRange/normalAxisTarget))<.001)normalAxisRange=normalAxisTarget;
+    zoomAnimating=Math.abs(Math.log(normalAxisRange/normalAxisTarget))>.001;scheduleZoom();
+    const maxNormal=normalAxisRange,left=72,right=w-13,top=30,bottom=h-43,xy=(u,v)=>[left+(u-lo)/(hi-lo)*(right-left),bottom-(v+maxNormal)/(2*maxNormal)*(bottom-top)];
+    ctx.save();ctx.beginPath();ctx.rect(left,top,right-left,bottom-top);ctx.clip();
+    const bandA=xy(lo,.1),bandB=xy(hi,-.1);ctx.fillStyle='rgba(53,108,85,.10)';ctx.fillRect(bandA[0],bandA[1],bandB[0]-bandA[0],bandB[1]-bandA[1]);
+    for(let k=lo;k<=hi;k++){if(hi-lo>14&&k%2)continue;const p=xy(k,0);line(ctx,[[p[0],top],[p[0],bottom]],'#d5dfe3');}
+    line(ctx,[xy(lo,0),xy(hi,0)],'#567383',1.5);
+    config.centerMeta.forEach(meta=>{const u=meta.s/state.spacing;if(u<lo||u>hi)return;square(ctx,xy(u,0),3.7,C.blue);});
+    currentDiagnostics.forEach((diag,i)=>{const before=xy(initial[i].s/state.spacing,initial[i].signedDistance/state.spacing),after=xy(diag.projection.s/state.spacing,diag.projection.signedDistance/state.spacing);line(ctx,[before,after],'rgba(84,112,128,.38)',1.2);if(Math.abs(initial[i].signedDistance/state.spacing)<=maxNormal)initialMarker(ctx,before);});
+    currentDiagnostics.forEach(diag=>outcomeMarker(ctx,xy(diag.projection.s/state.spacing,diag.projection.signedDistance/state.spacing),diag.category,5.1));
+    ctx.restore();
+    let hiddenStarts=0;initial.forEach(p=>{const v=p.signedDistance/state.spacing;if(Math.abs(v)<=maxNormal)return;hiddenStarts++;const x=xy(p.s/state.spacing,0)[0];triangle(ctx,[x,v>0?top+4:bottom-4],4,C.bg,'#627c8b',v>0?1:-1);});
+    for(let k=lo;k<=hi;k++){if(hi-lo>14&&k%2)continue;const p=xy(k,0);text(ctx,String(k),p[0],bottom+22,C.muted,14,'center');}
+    const axisFormat=v=>Math.abs(v)>=1?v.toFixed(1):Math.abs(v)>=.1?v.toFixed(2):v.toFixed(3);
+    text(ctx,'0',left-10,xy(0,0)[1]+5,C.muted,14,'right');text(ctx,axisFormat(maxNormal),left-10,top+5,C.muted,14,'right');text(ctx,'−'+axisFormat(maxNormal),left-10,bottom+5,C.muted,14,'right');text(ctx,'s / ℓ',right,h-4,C.muted,14,'right');text(ctx,'normal / ℓ',left,16,C.muted,14);
+    $('normal-range').textContent='±'+axisFormat(maxNormal)+'ℓ';$('normal-zoom').textContent=format(normalAxisBaseline/maxNormal,1)+'×';
+    $('normal-zoom-note').textContent=(state.followRefinement?'The vertical axis follows the current outputs; their initial heights do not set its range. ':'Following is paused; the vertical axis holds its scale and expands only if needed. ')+(hiddenStarts?hiddenStarts+' initial positions are outside this zoom and indicated by gray edge triangles. ':'Gray crosses indicate the initial positions. ')+'Horizontal cell positions remain fixed. The pale band is normal distance ≤ 0.10ℓ.';
+  }
+  function updateReadouts(){
+    const ev=probeEvaluation,projection=M.project(state.probe,config),training=M.nearestTraining(state.probe,config);
+    $('top-share').textContent=format(100*ev.topShare,1)+'%';$('effective-count').textContent=format(ev.effectiveContributors,2);
+    $('probe-reading').textContent=ev.topShare>.80?'One observed center dominates the weighted average. The bars show its coefficient, rather than a fraction of the final score magnitude.':ev.topShare>.5?'One neighbor leads, while other observations still alter the local average.':'Several observations share the local average. This can describe a neighborhood—and can also inherit curvature bias.';
+    $('probe-location').textContent='At query x = ('+format(state.probe[0],2)+', '+format(state.probe[1],2)+'): training distance '+compact(training.distance/state.spacing)+'ℓ, manifold distance '+compact(projection.distance/state.spacing)+'ℓ.'+(projection.tie?' The nearest manifold projection is not unique here.':'');
+    const counts={capture:0,between:0,away:0,refining:0},cells=new Set();currentDiagnostics.forEach(d=>{counts[d.category]++;if(d.resolved&&!d.projection.tie)cells.add(d.cell);});
+    for(const key of Object.keys(counts))$(key+'-count').textContent=counts[key];
+    const resolved=15-counts.refining;$('resolved-label').textContent=resolved+' / 15 numerically resolved';$('distinct-cells').textContent=resolved?cells.size:'—';
+    $('training-distance').textContent=compact(median(currentDiagnostics.map(d=>d.trainingDistance))/state.spacing);$('manifold-distance').textContent=compact(median(currentDiagnostics.map(d=>d.normalError))/state.spacing);$('maximum-residual').textContent=compact(Math.max(...currentDiagnostics.map(d=>d.residual))/state.spacing);
+    if(state.iteration===0)$('main-reading').innerHTML='Inspect the <strong>orange query point</strong> to see who determines the score. Then play the same fixed starts to see where this field takes them.';
+    else if(counts.refining>0)$('main-reading').innerHTML='<strong>'+counts.refining+' trajectories are still refining.</strong> Nearness is reported separately from convergence; a finite iterate is not automatically an endpoint.';
+    else if(counts.away>0)$('main-reading').innerHTML='<strong>'+counts.away+' outcomes are away from the curve</strong> at this resolution. Sharing many neighbors alone is insufficient: their average can be geometrically biased.';
+    else if(counts.between>0)$('main-reading').innerHTML='<strong>'+counts.between+' outcomes lie between samples and near the curve.</strong> The '+cells.size+' resolved cells show how much variation this small ensemble retains.';
+    else $('main-reading').innerHTML='The shown trajectories finish <strong>near individual training points</strong>. At this resolution the field behaves like a collection of sample-associated attractors.';
+    $('model-details').textContent='Current settings: 82 observations; d = 3; σmin = '+format(state.sigmaMin,3)+'; σmax = 3; 32 scales; η = 0.35; refinement tolerance '+tolerance().toExponential(1)+'. The reference parabola has reach '+(Number.isFinite(config.reach)?format(config.reach,3):'∞')+'.';
+    $('reach-value').textContent='Reach τ = '+(Number.isFinite(config.reach)?format(config.reach,2):'∞');
+    updateComputedFeedback();
+  }
+  function render(){if(!config)return;syncControls();const key=state.probe.join(',');if(key!==probeCacheKey){probeEvaluation=M.evaluate(...state.probe,config);probeCacheKey=key;}currentDiagnostics=trajectories.map(t=>infoAt(t,state.iteration));drawGeometry();drawWeights();drawOutcomes();updateReadouts();setTimeout(reportHeight,0);}
+  function rebuild(){
+    const comparison=parameterComparison;
+    config=M.prepare({curvature:state.curvature,spacing:state.spacing,sigmaMin:state.sigmaMin,sigmaMax:3,nScales:32,d:3});probeCacheKey='';
+    trajectories=starts.map(start=>M.simulate(start,config,{eta:.35,maxSteps:1200,tolerance:tolerance()}));
+    initialProjections=starts.map(p=>M.project(p,config));finalProjections=trajectories.map(t=>M.project(t.endpoint,config));
+    previewMetrics=summarizePreview();parameterFeedback=null;parameterComparison=null;
+    if(comparison&&comparison.probe.every((v,i)=>Math.abs(v-state.probe[i])<1e-12)&&['curvature','spacing','sigmaMin'].some(key=>Math.abs(comparison.parameters[key]-state[key])>1e-12)){
+      const after=M.evaluate(...state.probe,config);
+      parameterFeedback={beforeTopShare:comparison.topShare,afterTopShare:after.topShare,beforeContributors:comparison.effectiveContributors,
+        afterContributors:after.effectiveContributors,beforeMedianNormal:comparison.medianNormalError,afterMedianNormal:previewMetrics.medianNormalError,
+        curvatureChanged:Math.abs(comparison.parameters.curvature-state.curvature)>1e-12};
+    }
+    maxIteration=Math.max(1,...trajectories.map(t=>t.updates));state.iteration=Math.min(state.iteration,maxIteration);buildPlaybackMass();
+    normalAxisRange=null;zoomAnimating=false;
+    field=[];for(let x=-2.9;x<=2.91;x+=.58)for(let y=-.6;y<=2.71;y+=.55)field.push({point:[x,y],score:M.evaluate(x,y,config).score});
+    render();
+  }
+  function stop(){playing=false;playRequested=false;clearPlaybackTimer();$('play-button').textContent='Play';$('play-button').setAttribute('aria-pressed','false');scheduleZoom();}
+  function scheduleRebuild(){if(pending)return;pending=true;setTimeout(()=>{rebuild();pending=false;if(playRequested)startPlayback();},0);}
+  function setParameters(patch){
+    const changesModel=config&&['curvature','spacing','sigmaMin'].some(key=>key in patch&&Math.abs(+patch[key]-config[key])>1e-12);
+    if(patch.probe){parameterComparison=null;parameterFeedback=null;}
+    else if(changesModel&&!parameterComparison){
+      const before=M.evaluate(...state.probe,config);
+      parameterComparison={probe:state.probe.slice(),topShare:before.topShare,effectiveContributors:before.effectiveContributors,
+        medianNormalError:previewMetrics?previewMetrics.medianNormalError:NaN,parameters:{curvature:config.curvature,spacing:config.spacing,sigmaMin:config.sigmaMin}};
+    }
+    stop();state={...state,...patch};state.curvature=Math.max(0,Math.min(.8,+state.curvature));state.spacing=Math.max(.35,Math.min(1.3,+state.spacing));state.sigmaMin=Math.max(.03,Math.min(1,+state.sigmaMin));state.iteration=0;if(patch.probe)state.probe=patch.probe.slice();
+    if(changesModel){$('computed-preview').textContent='Computing this field from the same 15 fixed starts…';$('parameter-feedback').hidden=true;}
+    syncControls();scheduleRebuild();
+  }
+  function setIteration(n){state.iteration=Math.max(0,Math.min(maxIteration,Math.round(n)));render();}
+  function setProbe(point){if(!point||!point.every(Number.isFinite))return;parameterComparison=null;parameterFeedback=null;state.probe=[Math.max(bounds.xmin,Math.min(bounds.xmax,point[0])),Math.max(bounds.ymin,Math.min(bounds.ymax,point[1]))];render();}
+  $('curvature').addEventListener('input',e=>setParameters({curvature:+e.target.value}));$('spacing').addEventListener('input',e=>setParameters({spacing:+e.target.value}));$('noise-floor').addEventListener('input',e=>setParameters({sigmaMin:sliderToSigma(+e.target.value)}));
+  $('show-field').addEventListener('change',e=>{state.showField=e.target.checked;render();});
+  $('follow-refinement').addEventListener('change',e=>{state.followRefinement=e.target.checked;render();});
+  $('zoom-button').addEventListener('click',()=>{state.detail=!state.detail;state.detailCenter=state.probe.slice();render();});
+  document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>setParameters({...M.presets[button.dataset.preset]})));
+  $('play-button').addEventListener('click',()=>{if(playing||playRequested)stop();else startPlayback();});
+  $('step-button').addEventListener('click',()=>{stop();setIteration(state.iteration>=maxIteration?0:state.iteration+1);});$('restart-button').addEventListener('click',()=>{stop();setIteration(0);});$('outcomes-button').addEventListener('click',()=>{stop();setIteration(maxIteration);});$('iteration').addEventListener('input',e=>{stop();setIteration(+e.target.value);});
+  $('reset-probe').addEventListener('click',()=>setProbe(defaults.probe));$('reset-button').addEventListener('click',()=>{parameterComparison=null;parameterFeedback=null;state={...defaults,probe:defaults.probe.slice()};setParameters({});});
+  let dragging=false;const geometry=$('geometry-canvas');
+  function eventProbe(e){const rect=geometry.getBoundingClientRect(),T=geometryTransform(rect.width,rect.height);setProbe(T.world([e.clientX-rect.left,e.clientY-rect.top]));}
+  geometry.addEventListener('pointerdown',e=>{dragging=true;geometry.setPointerCapture(e.pointerId);eventProbe(e);});geometry.addEventListener('pointermove',e=>{if(dragging)eventProbe(e);});geometry.addEventListener('pointerup',()=>dragging=false);geometry.addEventListener('pointercancel',()=>dragging=false);
+  geometry.addEventListener('keydown',e=>{const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]};if(!directions[e.key])return;e.preventDefault();const delta=state.spacing*(e.shiftKey?.12:.04),dir=directions[e.key];setProbe([state.probe[0]+delta*dir[0],state.probe[1]+delta*dir[1]]);});
+  let resizePending=false;new ResizeObserver(()=>{if(resizePending)return;resizePending=true;setTimeout(()=>{resizePending=false;render();},16);}).observe(document.body);
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.manifoldDemo={getState:()=>({...state,probe:state.probe.slice(),pending,playing,maxIteration,playbackEndIteration:maxIteration,playbackVisualEndIteration:visualEndIteration,playbackDuration,playbackClock:'single monotonic timer',normalAxisRange,normalAxisTarget,normalZoomFactor:normalAxisRange?normalAxisBaseline/normalAxisRange:1,zoomAnimating,starts:starts.map(p=>p.slice()),theoryRatios:{smoothing:state.sigmaMin/state.spacing,geometricBias:state.sigmaMin*state.sigmaMin*state.curvature/state.spacing},previewMetrics:previewMetrics?{...previewMetrics,counts:{...previewMetrics.counts}}:null,parameterFeedback:parameterFeedback?{...parameterFeedback}:null,probeDiagnostics:probeEvaluation?{topShare:probeEvaluation.topShare,effectiveContributors:probeEvaluation.effectiveContributors,q:probeEvaluation.q.slice(),barycenter:probeEvaluation.barycenter.slice(),score:probeEvaluation.score.slice()}:null,currentDiagnostics:currentDiagnostics.map(d=>({...d,point:d.point.slice()})),trajectories:trajectories.map(t=>({start:t.start.slice(),endpoint:t.endpoint.slice(),converged:t.converged,residual:t.residual,updates:t.updates,minimumLogDensityIncrement:t.minimumLogDensityIncrement,points:t.points,diagnostics:t.diagnostics}))}),setParameters,setIteration,setProbe,reset:()=>{$('reset-button').click();}};
+  pending=true;rebuild();pending=false;
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Explore Gaussian shells, multi-scale density landscapes, and exact gradient ascent. Change dimension, noise scales, and step size.">
+  <title>Gaussian Shells and Generative Landscapes</title>
+  <link rel="stylesheet" href="landscape.css">
+</head>
+<body>
+  <header class="page-header">
+    <a class="back-link" href="../index.html#4-gaussian-shells-build-a-mountain">Back to the essay</a>
+    <span>Gaussian denoising · an explorable figure</span>
+  </header>
+  <main id="landscape-explorable">
+    <div class="opening">
+      <p class="eyebrow">From Gaussian shells to generation</p>
+      <h1>A landscape you can climb</h1>
+      <p class="dek">Spread noise around a center. Combine the scales into a mountain. Add more centers, then let the gradient guide the climb.</p>
+    </div>
+    <nav class="stage-tabs" aria-label="Visual explanation stages">
+      <button type="button" data-stage="0" class="selected" aria-pressed="true">Gaussian shells</button>
+      <button type="button" data-stage="1" aria-pressed="false">One mountain</button>
+      <button type="button" data-stage="2" aria-pressed="false">Many mountains</button>
+      <button type="button" data-stage="3" aria-pressed="false">Gradient ascent</button>
+    </nav>
+    <section class="stage-story" aria-live="polite">
+      <h2 id="stage-heading">Equal draws occupy very different volumes</h2>
+      <p id="stage-description"></p>
+    </section>
+    <div class="controls" aria-label="Landscape parameters">
+      <label class="parameter" for="dimension"><span>Dimension <i>d</i><output id="dimension-value">16</output></span><input id="dimension" type="range" min="2" max="128" step="1" value="16"><span class="range-ends"><span>2</span><span>128</span></span></label>
+      <label class="parameter" for="sigma-min"><span>Noise floor <i>σ</i><sub>min</sub><output id="sigma-min-value">0.32</output></span><input id="sigma-min" type="range" min="0.12" max="1.00" step="0.01" value="0.32"><span class="range-ends"><span>0.12</span><span>1.00</span></span></label>
+      <label class="parameter" for="sigma-max"><span>Broad scale <i>σ</i><sub>max</sub><output id="sigma-max-value">1.35</output></span><input id="sigma-max" type="range" min="0.80" max="2.50" step="0.01" value="1.35"><span class="range-ends"><span>0.80</span><span>2.50</span></span></label>
+      <label class="parameter step-parameter" for="step-size"><span>Step size <i>η</i><output id="step-size-value">0.030</output></span><input id="step-size" type="range" min="0" max="1000" step="1" value="500"><span class="range-ends"><span id="eta-min">0.002</span><span id="eta-max">0.450</span></span></label>
+    </div>
+    <div class="scene-tools">
+      <div class="preset-row"><span>Try</span><button type="button" data-preset="thin">Thin shells</button><button type="button" data-preset="overlap">Overlapping peaks</button><button type="button" data-preset="broad">Broad foothills</button><button type="button" data-preset="overshoot">Overshoot</button></div>
+      <div class="height-toggle" role="group" aria-label="Landscape height"><button type="button" data-height="density" aria-pressed="false">Density</button><button type="button" data-height="log" class="selected" aria-pressed="true">Log density</button></div>
+    </div>
+    <div id="shell-scene" class="scene-shells">
+      <section class="plot-panel shell-panel"><h3>Where the draws land</h3><canvas id="shell-canvas" aria-label="Radial schematic with 32 noise scales and equally sampled draws at three representative scales" role="img"></canvas><p class="plot-note">Radial schematic, not a two-dimensional projection. Faint rings show all 32 scales; colored dots show equal raw counts at three representative scales.</p></section>
+      <section class="plot-panel shell-profiles"><h3>Density and probability tell different stories</h3><canvas id="profile-canvas" aria-label="Ambient point density and radial probability density profiles" role="img"></canvas><p class="plot-note">The density peaks at the center. Volume moves radial probability outward. Both profiles describe individual Gaussian components.</p></section>
+    </div>
+    <div id="playback" class="playback" hidden>
+      <div class="playback-top"><div class="transport"><button type="button" id="play-button">Play</button><button type="button" id="step-button">One step</button><button type="button" id="restart-button">Restart</button><label for="gradient-rule">Update<select id="gradient-rule"><option value="raw">Gradient ascent</option><option value="normalized">Normalize by β</option></select></label><label for="ascent-centers">Climb<select id="ascent-centers"><option value="range">The range</option><option value="single">One mountain</option></select></label></div><span class="iteration-label">Iteration <output id="iteration-value">0</output> / <span id="iteration-end">120</span></span></div>
+      <label class="scrubber-label" for="iteration">Trajectory progress<input type="range" id="iteration" min="0" max="120" step="1" value="0"></label>
+      <p id="playback-status" class="plot-note">Playback retains meaningful motion and stops when the computed tracks settle or escape.</p>
+      <p class="plot-note">Nearly stationary frames are skipped; the counter always shows actual update numbers.</p>
+      <div class="metrics" aria-live="polite"><span>Shown starts <strong id="start-count">18</strong></span><span>Density-decreasing steps <strong id="downhill-count">0</strong></span><span>Outside view <strong id="outside-count">0</strong></span><span>Median log-density gain <strong id="density-gain">0.00</strong></span></div>
+    </div>
+    <div id="landscape-scene" class="scene-landscape" hidden>
+      <section class="plot-panel surface-panel"><div class="plot-heading"><h3 id="surface-title">One fixed density</h3><span id="height-label">Full displayed log-density range</span></div><canvas id="surface-canvas" tabindex="0" aria-label="Rotatable three-dimensional view of the density on a two-dimensional slice. Drag or use left and right arrow keys to rotate." role="img"></canvas><p class="plot-note" id="surface-note">Drag to rotate. Log height rescales the full displayed log-density range; density height is normalized by the maximum shown.</p></section>
+      <section class="plot-panel contour-panel"><div class="plot-heading"><h3 id="contour-title">The uphill directions</h3><span id="contour-hint">Score arrows</span></div><canvas id="contour-canvas" tabindex="0" aria-label="Density contours and score directions on the invariant two-dimensional slice" role="img"></canvas><p class="plot-note" id="contour-note">Contours show the full displayed log-density range. Arrows indicate score direction.</p></section>
+    </div>
+    <div id="landscape-legend" class="mark-legend" hidden><span><i class="legend-center"></i>Training center</span><span><i class="legend-iterate"></i>Current sample and path</span><span><i class="legend-start"></i>Initial position</span></div>
+    <section id="far-field-panel" class="far-field-panel" hidden>
+      <div class="plot-heading"><h3>Broad scales build the foothills</h3><span>Separate one-center comparison</span></div>
+      <div class="far-field-grid"><canvas id="far-field-canvas" role="img" aria-label="One-center radial log-density profiles comparing the current broad cutoff with a fixed reference cutoff; the outer probe remains fixed when noise scales change"></canvas><div class="far-field-numbers"><p id="far-field-probe">Probe radius r = 1.8√d</p><div><span>Effective noise scale</span><strong id="far-field-scale">—</strong><small id="far-field-reference-scale"></small></div><div><span>Score magnitude at the probe</span><strong id="far-field-score">—</strong><small id="far-field-reference-score"></small></div></div></div>
+      <div class="far-field-legend"><span><i class="current-curve"></i><span id="far-field-current-label">Current σmax</span></span><span><i class="reference-curve"></i><span id="far-field-reference-label">Reference σmax</span></span></div>
+      <p class="far-field-delta" id="far-field-delta"></p>
+      <p class="plot-note" id="far-field-note">Broad scales have their strongest influence farther from the centers. This curve shows log density relative to the center, rather than peak-normalized density, so the tail remains visible. The probe is separate from the main local view and is held fixed when σ changes.</p>
+    </section>
+    <div class="reading-line" id="reading-line" aria-live="polite"></div>
+    <p class="slice-note" id="slice-note" hidden><strong>A precise slice.</strong> The surface is the full <i>d</i>-dimensional density evaluated at x₃ = … = x<sub>d</sub> = 0. All centers and shown trajectories lie in this invariant plane. These fixed, illustrative starts are not typical full-dimensional Gaussian initializations.</p>
+    <details class="technical-note"><summary>The density and the two update rules</summary><div><p>We use 32 logarithmically spaced noise scales and the exact weighted mixture <span class="formula">p<sub>MN</sub>(x) ∝ ∑<sub>j,i</sub> σ<sub>i</sub>² 𝒩<sub>d</sub>(x; μ<sub>j</sub>, σ<sub>i</sub>²I)</span>. Its score is <span class="formula">s(x) = β(x)(μ̄(x) − x)</span>. The landscape remains fixed during a run.</p><p>An Euler update takes a finite straight step using the current field. <strong>Gradient ascent:</strong> x<sub>n+1</sub> = x<sub>n</sub> + ηs(x<sub>n</sub>). A large η may overshoot and decrease density. <strong>Normalize by β:</strong> x<sub>n+1</sub> = x<sub>n</sub> + η(μ̄(x<sub>n</sub>) − x<sub>n</sub>). This exact-mixture update increases density for 0 &lt; η &lt; 2. Normalizing preserves continuous integral curves; finite Euler steps need not land on identical paths.</p><p>Changing a parameter reuses the same initial points and recalculates the trajectories. Escaping the visible window is reported rather than corrected. Tracks that become nonfinite or exceed radius 20 stop, and remain counted as outside. The shell view uses individual Gaussian components; the mountain view includes the σ² mixture weights. At every positive noise scale, a Gaussian density is positive everywhere.</p><p>The far-field profile uses a single center and the same 32-scale mixture. The outer probe is at radius 1.8√d, and the profile extends to 2.6√d. Its effective scale is 1/√β at that position. The reference broad cutoff is max(σmin, 0.80), with the same lower cutoff. Each log-density curve subtracts its own center value; no change in the score or density is added for display.</p><p id="stability-note"></p></div></details>
+    <footer class="figure-footer"><span>Exact analytic fields · no neural network approximation</span><button type="button" id="reset-button">Reset the figure</button></footer>
+  </main>
+  <script src="landscape-math.js"></script>
+  <script src="landscape-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+_site/
+__pycache__/
+*.py[cod]
+node_modules/
+.openai/
+.env
+.env.*
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+.DS_Store
+Thumbs.db
